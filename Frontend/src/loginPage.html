@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - SWIFTb</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="./css/style.css" />
+  <style>
+    .auth-container {
+      max-width: 400px;
+      margin: 80px auto;
+      padding: var(--space);
+    }
+    .auth-container .logo {
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: var(--space);
+    }
+    .auth-container .logo span { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="logo">SWIFT<span>b</span></div>
+    <div class="card">
+      <h2 style="text-align:center;">Welcome Back</h2>
+      <p class="text-center text-muted">Log in to continue your application</p>
+
+      <form id="loginForm" class="mt-2" onsubmit="handleLogin(event)">
+        <div class="input-group">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="test@example.com" value="test@example.com" />
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••" value="password123" />
+        </div>
+
+        <button type="submit" class="btn btn-gold btn-block" id="loginBtn">
+          <i class="fas fa-sign-in-alt"></i> Log In
+        </button>
+      </form>
+
+      <p class="text-center mt-2" style="font-size:0.875rem;">
+        Don't have an account? <a href="./registerPage.html">Sign up</a>
+      </p>
+
+      <hr style="margin:var(--space) 0;" />
+      
+      <div style="text-align:center;">
+        <p class="text-muted" style="font-size:0.75rem;">Quick Demo</p>
+        <button class="btn btn-secondary btn-sm" onclick="demoLogin()">
+          <i class="fas fa-user"></i> Continue as Guest
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/app.js"></script>
+  <script src="./js/api.js"></script>
+  <script>
+    async function handleLogin(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('loginBtn');
+
+      if (!email || !password) {
+        showToast('Please fill in all fields.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+
+      try {
+        const result = await api.login({ email, password });
+        showToast('Login successful!', 'success');
+        
+        sessionStorage.setItem('token', result.token);
+        sessionStorage.setItem('role', result.role || 'customer');
+        sessionStorage.setItem('user', JSON.stringify(result.user));
+
+        setTimeout(() => {
+          window.location.href = './pages/customer/dashboard.html';
+        }, 1000);
+        
+      } catch (error) {
+        showToast('Login failed: ' + error.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Log In';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const token = sessionStorage.getItem('token');
+      if (token) {
+        window.location.href = './pages/customer/dashboard.html';
+      }
+    });
+  </script>
+</body>
+</html>

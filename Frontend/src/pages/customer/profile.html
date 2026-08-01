@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile - SWIFTb</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="container" style="max-width:800px;">
+    <div style="display:flex;align-items:center;gap:var(--space);padding:var(--space) 0;border-bottom:1px solid var(--gray-200);margin-bottom:var(--space);">
+      <a href="./dashboard.html" style="font-size:1.5rem;color:var(--primary);">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <h1 style="margin:0;">My Profile</h1>
+    </div>
+
+    <div class="card">
+      <h2>Personal Information</h2>
+      <p class="text-muted">Your details for the application</p>
+
+      <form id="profileForm" class="mt-2" onsubmit="saveProfile(event)">
+        <div class="input-group">
+          <label>Full Name *</label>
+          <input type="text" id="fullName" required />
+        </div>
+        <div class="input-group">
+          <label>Email *</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="input-group">
+          <label>Phone Number *</label>
+          <input type="tel" id="phone" required />
+        </div>
+        <div class="input-group">
+          <label>Date of Birth</label>
+          <input type="date" id="dob" />
+        </div>
+        <div class="input-group">
+          <label>Address</label>
+          <input type="text" id="address" />
+        </div>
+        <div class="input-group">
+          <label>Occupation</label>
+          <input type="text" id="occupation" />
+        </div>
+        <div class="input-group">
+          <label>National ID Number</label>
+          <input type="text" id="nationalId" />
+        </div>
+        <div style="display:flex;gap:var(--space);">
+          <button type="submit" class="btn btn-gold">Save Profile</button>
+          <a href="./dashboard.html" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadProfile();
+    });
+
+    async function loadProfile() {
+      try {
+        const user = getUserData();
+        if (user) {
+          document.getElementById('fullName').value = user.fullName || '';
+          document.getElementById('email').value = user.email || '';
+          document.getElementById('phone').value = user.phoneNumber || '';
+        }
+
+        const profile = await api.getProfile();
+        if (profile) {
+          document.getElementById('fullName').value = profile.user?.fullName || user?.fullName || '';
+          document.getElementById('email').value = profile.user?.email || user?.email || '';
+          document.getElementById('phone').value = profile.user?.phoneNumber || user?.phoneNumber || '';
+          document.getElementById('dob').value = profile.dateOfBirth || '';
+          document.getElementById('address').value = profile.address || '';
+          document.getElementById('occupation').value = profile.occupation || '';
+          document.getElementById('nationalId').value = profile.nationalId || '';
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        showToast('Failed to load profile', 'error');
+      }
+    }
+
+    async function saveProfile(e) {
+      e.preventDefault();
+      
+      const data = {
+        dateOfBirth: document.getElementById('dob').value,
+        address: document.getElementById('address').value,
+        occupation: document.getElementById('occupation').value,
+        nationalId: document.getElementById('nationalId').value,
+      };
+
+      try {
+        await api.updateProfile(data);
+        showToast('Profile updated successfully!', 'success');
+      } catch (error) {
+        showToast('Failed to update profile: ' + error.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Step 4 - Review & Submit - SWIFTb</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="container" style="max-width:800px;">
+    <div style="display:flex;align-items:center;gap:var(--space);padding:var(--space) 0;border-bottom:1px solid var(--gray-200);margin-bottom:var(--space);">
+      <a href="./apply-step3.html" style="font-size:1.5rem;color:var(--primary);">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <h1 style="margin:0;">Apply for Account</h1>
+    </div>
+
+    <div class="stepper">
+      <div class="step completed"><div class="circle"><i class="fas fa-check"></i></div><span class="label">Account Type</span></div>
+      <div class="step completed"><div class="circle"><i class="fas fa-check"></i></div><span class="label">Personal Details</span></div>
+      <div class="step completed"><div class="circle"><i class="fas fa-check"></i></div><span class="label">Upload ID</span></div>
+      <div class="step active"><div class="circle">4</div><span class="label">Review & Submit</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Review Your Application</h2>
+      <p class="text-muted">Please review all details before submitting.</p>
+
+      <div id="reviewContent" class="mt-2"></div>
+
+      <div class="input-group mt-2">
+        <label>
+          <input type="checkbox" id="termsCheckbox" onchange="toggleSubmit()" />
+          I confirm that all information provided is accurate and complete.
+        </label>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;margin-top:var(--space);">
+        <a href="./apply-step3.html" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <button id="submitBtn" class="btn btn-gold" disabled onclick="submitApplication()">
+          <i class="fas fa-paper-plane"></i> Submit Application
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      wizard.load();
+      renderReview();
+      
+      if (wizard.data.termsAccepted) {
+        document.getElementById('termsCheckbox').checked = true;
+        document.getElementById('submitBtn').disabled = false;
+      }
+    });
+
+    function renderReview() {
+      const data = wizard.data;
+      const d = data.personalDetails || {};
+      const id = data.nationalId || {};
+
+      let html = `
+        <table style="width:100%;border-collapse:collapse;">
+          <tr><td style="padding:6px 0;"><strong>Account Type</strong></td><td style="padding:6px 0;">${data.accountType || 'Not selected'}</td></tr>
+          <tr><td style="padding:6px 0;"><strong>Address</strong></td><td style="padding:6px 0;">${d.address || '—'}</td></tr>
+          <tr><td style="padding:6px 0;"><strong>Occupation</strong></td><td style="padding:6px 0;">${d.occupation || '—'}</td></tr>
+          <tr><td style="padding:6px 0;"><strong>Income Range</strong></td><td style="padding:6px 0;">${d.incomeRange || '—'}</td></tr>
+          <tr><td style="padding:6px 0;"><strong>Next of Kin</strong></td><td style="padding:6px 0;">${d.nextOfKin || '—'} ${d.nextOfKinPhone ? '('+d.nextOfKinPhone+')' : ''}</td></tr>
+          <tr><td style="padding:6px 0;"><strong>National ID Number</strong></td><td style="padding:6px 0;">${id.number || '—'}</td></tr>
+          <tr><td style="padding:6px 0;"><strong>ID Uploaded</strong></td><td style="padding:6px 0;">${id.uploaded ? '✅ Yes' : '❌ No'}</td></tr>
+        </table>
+      `;
+
+      if (id.fileUrl) {
+        html += `<div class="mt-2"><img src="${id.fileUrl}" style="max-width:150px;border-radius:6px;border:1px solid var(--gray-200);" /></div>`;
+      }
+
+      document.getElementById('reviewContent').innerHTML = html;
+      console.log('Wizard Data:', wizard.data);
+      console.log('Is Complete:', wizard.isComplete());
+    }
+
+    function toggleSubmit() {
+      const checked = document.getElementById('termsCheckbox').checked;
+      document.getElementById('submitBtn').disabled = !checked;
+      wizard.setTermsAccepted(checked);
+    }
+
+    function submitApplication() {
+      const btn = document.getElementById('submitBtn');
+      
+      if (!document.getElementById('termsCheckbox').checked) {
+        showToast('Please accept the terms and conditions.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = 'Submitting... <i class="fas fa-spinner fa-spin"></i>';
+
+      const data = wizard.data;
+      
+      if (!data.accountTypeId) {
+        showToast('Please select an account type.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+        return;
+      }
+
+      if (!data.personalDetails.address || !data.personalDetails.occupation) {
+        showToast('Please complete your personal details.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+        return;
+      }
+
+      if (!data.nationalId.number || !data.nationalId.uploaded) {
+        showToast('Please upload your National ID.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+        return;
+      }
+
+      setTimeout(() => {
+        const appId = 'APP-' + Date.now();
+        wizard.setApplicationId(appId);
+        
+        const apps = getStorage('applications') || [];
+        const newApp = {
+          id: appId,
+          accountType: data.accountType,
+          accountTypeId: data.accountTypeId,
+          address: data.personalDetails.address,
+          occupation: data.personalDetails.occupation,
+          incomeRange: data.personalDetails.incomeRange || '',
+          nextOfKin: data.personalDetails.nextOfKin || '',
+          nextOfKinPhone: data.personalDetails.nextOfKinPhone || '',
+          nationalId: data.nationalId.number,
+          documentId: data.nationalId.documentId || 'doc_' + Date.now(),
+          status: 'pending',
+          submittedDate: new Date().toISOString(),
+          bank: getSelectedBank()?.name || 'Unknown Bank',
+          bankId: getSelectedBank()?.id || 'unknown'
+        };
+        apps.push(newApp);
+        setStorage('applications', apps);
+
+        wizard.reset();
+
+        showToast('🎉 Application submitted successfully!', 'success');
+        setTimeout(() => {
+          window.location.href = './dashboard.html';
+        }, 1500);
+      }, 1500);
+    }
+  </script>
+</body>
+</html>

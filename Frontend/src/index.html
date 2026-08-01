@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SWIFTb - Open Account Online</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="./css/style.css" />
+  <style>
+    .hero {
+      text-align: center;
+      padding: 60px 0 40px;
+      background: linear-gradient(135deg, var(--primary) 0%, #1a3a6a 100%);
+      color: white;
+      border-radius: 0 0 30px 30px;
+      margin-bottom: var(--space);
+    }
+    .hero h1 {
+      color: white;
+      font-size: 3rem;
+      font-weight: 800;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      color: rgba(255,255,255,0.85);
+      max-width: 600px;
+      margin: 12px auto 0;
+      font-size: 1.1rem;
+    }
+    .auth-buttons {
+      display: flex;
+      gap: var(--space);
+      justify-content: center;
+      margin-top: var(--space);
+      flex-wrap: wrap;
+    }
+    .btn-outline {
+      background: transparent;
+      color: white;
+      border-color: rgba(255,255,255,0.3);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.5);
+    }
+    .btn-gold {
+      background: var(--accent);
+      color: var(--primary);
+      border-color: var(--accent);
+    }
+    .btn-gold:hover {
+      background: var(--accent-light);
+      border-color: var(--accent-light);
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space);
+      margin: var(--space) 0;
+    }
+    .features .item { 
+      text-align: center; 
+      padding: var(--space); 
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .features .item .icon { 
+      font-size: 2.5rem; 
+      color: var(--accent); 
+      margin-bottom: 12px;
+    }
+    .features .item h4 { font-size: 1rem; margin-bottom: 4px; }
+    .features .item p { font-size: 0.8rem; color: var(--gray-500); }
+    .footer {
+      text-align: center;
+      padding: var(--space);
+      color: var(--gray-500);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--gray-200);
+      margin-top: var(--space);
+    }
+    .bank-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: var(--space);
+      padding: var(--space) 0;
+    }
+    .bank-card {
+      background: var(--white);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: calc(var(--space) * 1.5);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow);
+    }
+    .bank-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: var(--shadow-lg);
+    }
+    .bank-card .icon {
+      font-size: 2rem;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space);
+      color: var(--white);
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero Section -->
+  <div class="hero">
+    <div class="container">
+      <h1>SWIFT<span>b</span></h1>
+      <p>Open a bank account online in minutes. Choose your bank and start your application.</p>
+      
+      <div class="auth-buttons">
+        <a href="./loginPage.html" class="btn btn-outline">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </a>
+        <a href="./registerPage.html" class="btn btn-gold">
+          <i class="fas fa-user-plus"></i> Register
+        </a>
+        <a href="./pages/customer/dashboard.html" class="btn btn-outline">
+          <i class="fas fa-arrow-right"></i> Skip to Demo
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banks Section -->
+  <div class="container">
+    <h2 class="text-center">Select Your Bank</h2>
+    <p class="text-center text-muted">Choose a bank to begin your account opening process</p>
+    <div class="bank-grid" id="bankGrid"></div>
+  </div>
+
+  <!-- Features -->
+  <div class="container">
+    <h2 class="text-center">Why SWIFTb?</h2>
+    <p class="text-center text-muted">The fastest way to open a bank account in Malawi</p>
+    <div class="features">
+      <div class="item">
+        <div class="icon"><i class="fas fa-mobile-alt"></i></div>
+        <h4>100% Online</h4>
+        <p>No branch visit required</p>
+      </div>
+      <div class="item">
+        <div class="icon"><i class="fas fa-shield-alt"></i></div>
+        <h4>Secure & Safe</h4>
+        <p>Your data is protected</p>
+      </div>
+      <div class="item">
+        <div class="icon"><i class="fas fa-clock"></i></div>
+        <h4>5 Minutes</h4>
+        <p>Open your account fast</p>
+      </div>
+      <div class="item">
+        <div class="icon"><i class="fas fa-id-card"></i></div>
+        <h4>National ID KYC</h4>
+        <p>Simple verification</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="footer">
+      &copy; 2026 SWIFTb - Online Account Opening System
+    </div>
+  </div>
+
+  <script src="./js/config.js"></script>
+  <script src="./js/app.js"></script>
+  <script>
+    const BANKS = [
+      { id: 'nbm', name: 'National Bank of Malawi', shortName: 'NBM', icon: 'fa-university', color: '#0A1F44', description: 'Full-service commercial bank', badge: 'Popular' },
+      { id: 'fdh', name: 'FDH Bank', shortName: 'FDH', icon: 'fa-building', color: '#003366', description: 'Leading financial services provider', badge: 'Fast' },
+      { id: 'standard', name: 'Standard Bank', shortName: 'Standard', icon: 'fa-landmark', color: '#0066b3', description: 'Global banking network' },
+      { id: 'ecobank', name: 'Ecobank Malawi', shortName: 'Ecobank', icon: 'fa-globe-africa', color: '#006b3e', description: 'Pan-African banking' },
+      { id: 'opportunity', name: 'Opportunity Bank', shortName: 'Opportunity', icon: 'fa-hand-holding-usd', color: '#f57c00', description: 'Microfinance & SME banking', badge: 'SME Focus' },
+      { id: 'mybucks', name: 'MyBucks Banking', shortName: 'MyBucks', icon: 'fa-coins', color: '#e65100', description: 'Digital-first banking' },
+      { id: 'nbs', name: 'NBS Bank', shortName: 'NBS', icon: 'fa-piggy-bank', color: '#2e7d32', description: 'Community banking' },
+      { id: 'first-capital', name: 'First Capital Bank', shortName: 'First Capital', icon: 'fa-chart-line', color: '#b71c1c', description: 'Corporate & personal banking' }
+    ];
+
+    function renderBanks() {
+      const grid = document.getElementById('bankGrid');
+      if (!grid) return;
+      grid.innerHTML = BANKS.map(bank => `
+        <div class="bank-card" onclick="selectBank('${bank.id}')">
+          <div class="icon" style="background:${bank.color};">
+            <i class="fas ${bank.icon}"></i>
+          </div>
+          <h3>${bank.name}</h3>
+          <p>${bank.description}</p>
+          ${bank.badge ? `<span class="badge badge-approved">${bank.badge}</span>` : ''}
+          <div style="margin-top:var(--space);">
+            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();selectBank('${bank.id}')">
+              Apply Now <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectBank(bankId) {
+      const bank = BANKS.find(b => b.id === bankId);
+      if (!bank) return;
+
+      setStorage('selectedBank', bank);
+      removeStorage('wizardDraft');
+      
+      showToast(`Selected ${bank.name}. Starting application...`, 'success');
+      setTimeout(() => {
+        window.location.href = './pages/customer/dashboard.html';
+      }, 800);
+    }
+
+    document.addEventListener('DOMContentLoaded', renderBanks);
+  </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Step 2 - Personal Details - SWIFTb</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="container" style="max-width:800px;">
+    <div style="display:flex;align-items:center;gap:var(--space);padding:var(--space) 0;border-bottom:1px solid var(--gray-200);margin-bottom:var(--space);">
+      <a href="./apply-step1.html" style="font-size:1.5rem;color:var(--primary);">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <h1 style="margin:0;">Apply for Account</h1>
+    </div>
+
+    <div class="stepper">
+      <div class="step completed"><div class="circle"><i class="fas fa-check"></i></div><span class="label">Account Type</span></div>
+      <div class="step active"><div class="circle">2</div><span class="label">Personal Details</span></div>
+      <div class="step"><div class="circle">3</div><span class="label">Upload ID</span></div>
+      <div class="step"><div class="circle">4</div><span class="label">Review & Submit</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Personal Details</h2>
+      <p class="text-muted">Please provide your personal information.</p>
+
+      <form id="detailsForm" class="mt-2" onsubmit="event.preventDefault(); saveAndNext();">
+        <div class="input-group">
+          <label>Address *</label>
+          <input type="text" id="address" required />
+        </div>
+        <div class="input-group">
+          <label>Occupation *</label>
+          <input type="text" id="occupation" required />
+        </div>
+        <div class="input-group">
+          <label>Income Range</label>
+          <select id="incomeRange">
+            <option value="">Select income range</option>
+            <option value="0-50k">0 - 50,000 MWK</option>
+            <option value="50k-100k">50,000 - 100,000 MWK</option>
+            <option value="100k-250k">100,000 - 250,000 MWK</option>
+            <option value="250k-500k">250,000 - 500,000 MWK</option>
+            <option value="500k+">500,000+ MWK</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Next of Kin</label>
+          <input type="text" id="nextOfKin" placeholder="Full name" />
+        </div>
+        <div class="input-group">
+          <label>Next of Kin Phone</label>
+          <input type="tel" id="nextOfKinPhone" placeholder="Phone number" />
+        </div>
+
+        <div style="display:flex;justify-content:space-between;margin-top:var(--space);">
+          <a href="./apply-step1.html" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+          </a>
+          <button type="submit" class="btn btn-gold">
+            Next <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      wizard.load();
+      const d = wizard.data.personalDetails;
+      if (d.address) document.getElementById('address').value = d.address;
+      if (d.occupation) document.getElementById('occupation').value = d.occupation;
+      if (d.incomeRange) document.getElementById('incomeRange').value = d.incomeRange;
+      if (d.nextOfKin) document.getElementById('nextOfKin').value = d.nextOfKin;
+      if (d.nextOfKinPhone) document.getElementById('nextOfKinPhone').value = d.nextOfKinPhone;
+    });
+
+    function saveAndNext() {
+      const details = {
+        address: document.getElementById('address').value,
+        occupation: document.getElementById('occupation').value,
+        incomeRange: document.getElementById('incomeRange').value,
+        nextOfKin: document.getElementById('nextOfKin').value,
+        nextOfKinPhone: document.getElementById('nextOfKinPhone').value,
+      };
+      
+      if (!details.address || !details.occupation) {
+        showToast('Please fill in all required fields.', 'error');
+        return;
+      }
+      
+      wizard.setPersonalDetails(details);
+      window.location.href = './apply-step3.html';
+    }
+  </script>
+</body>
+</html>

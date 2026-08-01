@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Application Status - SWIFTb</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="container" style="max-width:800px;">
+    <div style="display:flex;align-items:center;gap:var(--space);padding:var(--space) 0;border-bottom:1px solid var(--gray-200);margin-bottom:var(--space);">
+      <a href="./dashboard.html" style="font-size:1.5rem;color:var(--primary);">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <h1 style="margin:0;">Application Status</h1>
+      <button class="btn btn-secondary btn-sm" style="margin-left:auto;" onclick="loadStatus()">
+        <i class="fas fa-sync"></i> Refresh
+      </button>
+    </div>
+
+    <div class="card" id="statusCard">
+      <div id="statusContent"><p class="text-muted">Loading...</p></div>
+    </div>
+
+    <div class="card mt-2" id="timelineCard">
+      <h3>Application Timeline</h3>
+      <div id="timelineContent"><p class="text-muted">No timeline available.</p></div>
+    </div>
+
+    <div class="mt-2">
+      <a href="./apply-step1.html" class="btn btn-gold">
+        <i class="fas fa-plus"></i> New Application
+      </a>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', loadStatus);
+
+    function loadStatus() {
+      const content = document.getElementById('statusContent');
+      content.innerHTML = '<p class="text-muted">Loading...</p>';
+
+      const apps = getStorage('applications') || [];
+      const app = apps.length > 0 ? apps[apps.length - 1] : null;
+
+      if (!app) {
+        content.innerHTML = `
+          <p class="text-muted">You haven't submitted an application yet.</p>
+          <a href="./apply-step1.html" class="btn btn-gold btn-sm mt-2">Start Application</a>
+        `;
+        document.getElementById('timelineContent').innerHTML = '<p class="text-muted">No timeline available.</p>';
+        return;
+      }
+
+      const statusMap = {
+        draft: 'Draft',
+        pending: 'Pending Review',
+        approved: 'Approved ✅',
+        rejected: 'Rejected ❌',
+        requires_information: 'Resubmission Requested'
+      };
+      const badgeClass = {
+        draft: 'badge-draft',
+        pending: 'badge-pending',
+        approved: 'badge-approved',
+        rejected: 'badge-rejected',
+        requires_information: 'badge-resubmission'
+      };
+
+      const status = app.status || 'pending';
+      content.innerHTML = `
+        <div>
+          <p><strong>Application ID:</strong> #${app.id}</p>
+          <p><strong>Bank:</strong> ${app.bank || 'Not specified'}</p>
+          <p><strong>Account Type:</strong> ${app.accountType || '—'}</p>
+          <p><strong>Status:</strong> 
+            <span class="badge ${badgeClass[status] || 'badge-pending'}">${statusMap[status] || status}</span>
+          </p>
+          ${app.submittedDate ? `<p><strong>Submitted:</strong> ${formatDate(app.submittedDate)}</p>` : ''}
+        </div>
+      `;
+
+      let timelineHtml = '<ul style="list-style:none;padding:0;">';
+      if (app.submittedDate) {
+        timelineHtml += `
+          <li style="padding:8px 0;border-bottom:1px solid var(--gray-100);">
+            <i class="fas fa-file-invoice" style="color:var(--primary);width:24px;"></i>
+            <strong>Application Submitted</strong>
+            <span style="float:right;color:var(--gray-500);font-size:0.75rem;">${formatDateTime(app.submittedDate)}</span>
+          </li>
+        `;
+      }
+      if (app.status === 'approved' || app.status === 'rejected') {
+        timelineHtml += `
+          <li style="padding:8px 0;border-bottom:1px solid var(--gray-100);">
+            <i class="fas ${app.status === 'approved' ? 'fa-check-circle' : 'fa-times-circle'}" style="color:${app.status === 'approved' ? 'var(--success)' : 'var(--danger)'};width:24px;"></i>
+            <strong>Application ${app.status === 'approved' ? 'Approved' : 'Rejected'}</strong>
+            <span style="float:right;color:var(--gray-500);font-size:0.75rem;">${formatDateTime(new Date().toISOString())}</span>
+          </li>
+        `;
+      }
+      timelineHtml += '</ul>';
+      document.getElementById('timelineContent').innerHTML = timelineHtml;
+    }
+  </script>
+</body>
+</html>
