@@ -14,22 +14,28 @@ export class CustomersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findByUserId(userId: string) {
-    const customer = await this.customerRepository.findOne({
+  async findOrCreateByUserId(userId: string) {
+    console.log('findOrCreateByUserId called with userId:', userId);
+    
+    // First check if customer exists
+    let customer = await this.customerRepository.findOne({
       where: { user: { id: userId } },
       relations: { user: true },
     });
 
     if (!customer) {
+      console.log('Customer not found, creating...');
       const user = await this.userRepository.findOne({
         where: { id: userId },
       });
 
       if (!user) {
+        console.log('User not found:', userId);
         throw new NotFoundException('User not found');
       }
 
-      const newCustomer = this.customerRepository.create({
+      // Create new customer
+      customer = this.customerRepository.create({
         user,
         nationalId: '',
         dateOfBirth: new Date(),
@@ -37,29 +43,23 @@ export class CustomersService {
         occupation: '',
       });
 
-      return this.customerRepository.save(newCustomer);
+      await this.customerRepository.save(customer);
+      console.log('Customer created with ID:', customer.id);
+    } else {
+      console.log('Customer found with ID:', customer.id);
     }
 
     return customer;
   }
 
   async updateByUserId(userId: string, updateCustomerDto: UpdateCustomerDto) {
-    const customer = await this.findByUserId(userId);
+    console.log('updateByUserId called with userId:', userId);
+    const customer = await this.findOrCreateByUserId(userId);
 
-    Object.assign(customer, updateCustomerDto);
-    await this.customerRepository.save(customer);
-
-    return customer;
-  }
-
-  async findOne(id: string) {
-    const customer = await this.customerRepository.findOne({
-      where: { id },
-      relations: { user: true },
-    });
-
-    if (!customer) {
-      throw new NotFoundException('Customer not found');
+    if (updateCustomerDto) {
+      Object.assign(customer, updateCustomerDto);
+      await this.customerRepository.save(customer);
+      console.log('Customer updated:', customer.id);
     }
 
     return customer;

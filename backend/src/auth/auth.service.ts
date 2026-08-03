@@ -87,9 +87,12 @@ export class AuthService {
 
     const resetToken = Math.random().toString(36).substring(2, 8).toUpperCase();
     
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`🔑 Password reset token for ${email}: ${resetToken}`);
+    }
+
     return {
-      message: 'Password reset token sent to your email',
-      token: resetToken,
+      message: 'If an account exists with this email, a password reset link has been sent.',
     };
   }
 }

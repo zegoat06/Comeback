@@ -16,7 +16,7 @@ import { UsersModule } from '../users/users.module';
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'your-secret-key',
+      secret: process.env.JWT_SECRET || 'finovate2026_production_secret_key_12345',
       signOptions: { expiresIn: '7d' },
     }),
     TypeOrmModule.forFeature([User]),

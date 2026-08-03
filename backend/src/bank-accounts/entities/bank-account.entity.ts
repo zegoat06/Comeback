@@ -14,51 +14,27 @@ import { Application } from '../../applications/entities/application.entity';
 
 @Entity('bank_accounts')
 export class BankAccount {
-
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(
-    () => Customer,
-    customer => customer.bankAccounts,
-    {
-      eager: true,
-      onDelete: 'CASCADE',
-    },
-  )
-  @JoinColumn({
-    name: 'customer_id',
+  @ManyToOne(() => Customer, (customer) => customer.bankAccounts, {
+    eager: true,
+    onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'customer_id' })
   customer!: Customer;
 
-  @Column({
-    unique: true,
-    length: 20,
-  })
-  accountNumber!: string;    
+  @Column({ unique: true, length: 20 })
+  accountNumber!: string;
 
-  @Column({
-    type: 'enum',
-    enum: AccountType,
-  })
+  @Column({ type: 'enum', enum: AccountType })
   accountType!: AccountType;
 
-  @Column({
-    type: 'enum',
-    enum: AccountStatus,
-    default: AccountStatus.ACTIVE,
-  })
+  @Column({ type: 'enum', enum: AccountStatus, default: AccountStatus.ACTIVE })
   status!: AccountStatus;
 
-  @ManyToOne(
-    () => Application,
-    {
-      eager: true,
-    },
-  )
-  @JoinColumn({
-    name: 'application_id',
-  })
+  @ManyToOne(() => Application, { eager: true })
+  @JoinColumn({ name: 'application_id' })
   application!: Application;
 
   @CreateDateColumn()

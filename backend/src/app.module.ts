@@ -15,6 +15,7 @@ import { ApplicationsModule } from './applications/applications.module';
 import { BankAccountsModule } from './bank-accounts/bank-accounts.module';
 import { DocumentsModule } from './documents/documents.module';
 import { SupabaseModule } from './supabase/supabase.module';
+import { PayChanguModule } from './paychangu/paychangu.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { SupabaseModule } from './supabase/supabase.module';
     BankAccountsModule,
     DocumentsModule,
     SupabaseModule,
+    PayChanguModule,
   ],
   controllers: [AppController],
   providers: [AppService],

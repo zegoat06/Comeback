@@ -9,12 +9,17 @@ export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 
   @Get('profile')
-  getProfile(@Request() req) {
-    return this.customersService.findByUserId(req.user.id);
+  async getProfile(@Request() req) {
+    // The user is attached to req.user by JwtAuthGuard
+    const userId = req.user.id || req.user.sub;
+    console.log('Getting profile for user:', userId);
+    return this.customersService.findOrCreateByUserId(userId);
   }
 
   @Put('profile')
-  updateProfile(@Request() req, @Body() updateCustomerDto: UpdateCustomerDto) {
-    return this.customersService.updateByUserId(req.user.id, updateCustomerDto);
+  async updateProfile(@Request() req, @Body() updateCustomerDto: UpdateCustomerDto) {
+    const userId = req.user.id || req.user.sub;
+    console.log('Updating profile for user:', userId);
+    return this.customersService.updateByUserId(userId, updateCustomerDto);
   }
 }

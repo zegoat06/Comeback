@@ -6,6 +6,7 @@ import { Application } from '../applications/entities/application.entity';
 import { Document } from '../documents/entities/document.entity';
 import { BankAccount } from '../bank-accounts/entities/bank-account.entity';
 import { AccountType } from '../account_type/entities/account-type.entity';
+import { Payment } from '../paychangu/entities/payment.entity';
 
 export const databaseConfig = (configService: ConfigService): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -21,6 +22,7 @@ export const databaseConfig = (configService: ConfigService): TypeOrmModuleOptio
     Document,
     BankAccount,
     AccountType,
+    Payment,
   ],
   synchronize: configService.get<string>('DB_SYNCHRONIZE') === 'true',
   ssl: {
