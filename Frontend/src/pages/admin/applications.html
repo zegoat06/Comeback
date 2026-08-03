@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Applications - Admin</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- OUR CSS -->
+  <link rel="stylesheet" href="../../css/variables.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+
+  <style>
+    .filter-bar {
+      display: flex;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-bar .input-group {
+      margin-bottom: 0;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-bar select {
+      max-width: 200px;
+    }
+
+    .search-input {
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar-container"></div>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <h1 class="header-title">Applications</h1>
+      <span class="admin-badge">Admin</span>
+    </div>
+    <div class="header-right">
+      <div class="header-user">
+        <span class="avatar" id="admin-avatar">A</span>
+        <span id="admin-name">Admin</span>
+      </div>
+      <button onclick="logout()" class="btn btn-ghost btn-sm">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">All Applications</h2>
+        <span id="total-count" style="color: var(--ink-secondary); font-size: var(--text-sm);">0 total</span>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="input-group search-input">
+          <input type="text" id="search-input" placeholder="🔍 Search by name or ID..." />
+        </div>
+
+        <div class="input-group">
+          <select id="status-filter">
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="resubmission">Resubmission</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary" onclick="loadApplications()">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container" id="applications-table">
+        <div class="empty-state">
+          <span class="empty-icon">⏳</span>
+          <h3>Loading...</h3>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- JAVASCRIPT -->
+  <script src="../../js/api.js"></script>
+  <script src="../../js/components.js"></script>
+
+  <script>
+    //  LOAD SIDEBAR 
+    fetch('../../pages/shared/sidebar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('sidebar-container').innerHTML = html;
+        document.querySelector('.sidebar-nav a[data-page="applications"]')?.classList.add('active');
+      });
+
+    //  LOAD ADMIN NAME 
+    const user = getCurrentUser();
+    if (user) {
+      document.getElementById('admin-name').textContent = user.name || 'Admin';
+      document.getElementById('admin-avatar').textContent = (user.name || 'A')[0].toUpperCase();
+    }
+
+    //  LOAD APPLICATIONS 
+    async function loadApplications() {
+      const status = document.getElementById('status-filter').value;
+      const search = document.getElementById('search-input').value.toLowerCase();
+
+      try {
+        const apps = await AdminAPI.getApplications(status === 'all' ? null : status);
+        const container = document.getElementById('applications-table');
+
+        // Filter by search
+        const filtered = apps.filter(app => {
+          const name = (app.customerName || '').toLowerCase();
+          const id = (app.id || '').toLowerCase();
+          return name.includes(search) || id.includes(search);
+        });
+
+        document.getElementById('total-count').textContent = `${filtered.length} total`;
+
+        if (!filtered || filtered.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <span class="empty-icon">📭</span>
+              <h3>No applications found</h3>
+              <p>Try changing your filters or check back later.</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Account Type</th>
+                <th>ID Number</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        filtered.forEach(app => {
+          const statusClass = app.status === 'approved' ? 'badge-approved' :
+                             app.status === 'rejected' ? 'badge-rejected' :
+                             app.status === 'resubmission' ? 'badge-resubmission' : 'badge-pending';
+
+          const statusLabel = app.status ? app.status.charAt(0).toUpperCase() + app.status.slice(1) : 'Pending';
+
+          html += `
+            <tr>
+              <td><strong>${app.customerName || 'Unknown'}</strong></td>
+              <td>${app.accountType || 'Savings'}</td>
+              <td>${app.idNumber || 'N/A'}</td>
+              <td>${app.createdAt ? new Date(app.createdAt).toLocaleDateString() : '-'}</td>
+              <td><span class="badge ${statusClass}">${statusLabel}</span></td>
+              <td>
+                <a href="application-detail.html?id=${app.id}" class="btn btn-sm btn-primary">
+                  <i class="fas fa-eye"></i> View
+                </a>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+
+      } catch (error) {
+        showToast('Failed to load applications', 'error');
+        console.error(error);
+
+        const container = document.getElementById('applications-table');
+        container.innerHTML = `
+          <div class="empty-state">
+            <span class="empty-icon">⚠️</span>
+            <h3>Error loading applications</h3>
+            <p>Please check your connection and try again.</p>
+            <button class="btn btn-primary" onclick="loadApplications()">Retry</button>
+          </div>
+        `;
+      }
+    }
+
+// SHARED MOCK DATA WITH localStorage
+
+function loadApplicationsFromStorage() {
+  const stored = localStorage.getItem('swiftbank_applications');
+  if (stored) {
+    return JSON.parse(stored);
+  }
+  
+  // Default data (only used once)
+  const defaultData = [
+    {
+      id: '1',
+      customerName: 'John Doe',
+      accountType: 'Savings',
+      idNumber: 'ID-123456',
+      createdAt: '2026-07-19T10:30:00',
+      status: 'pending'
+    },
+    {
+      id: '2',
+      customerName: 'Mary Jane',
+      accountType: 'Current',
+      idNumber: 'ID-789012',
+      createdAt: '2026-07-18T14:20:00',
+      status: 'pending'
+    },
+    {
+      id: '3',
+      customerName: 'Peter Mwale',
+      accountType: 'Fixed Deposit',
+      idNumber: 'ID-345678',
+      createdAt: '2026-07-17T09:15:00',
+      status: 'approved'
+    },
+    {
+      id: '4',
+      customerName: 'Sarah Banda',
+      accountType: 'Savings',
+      idNumber: 'ID-901234',
+      createdAt: '2026-07-16T16:45:00',
+      status: 'rejected'
+    },
+    {
+      id: '5',
+      customerName: 'David Kumwenda',
+      accountType: 'Current',
+      idNumber: 'ID-567890',
+      createdAt: '2026-07-15T11:00:00',
+      status: 'resubmission'
+    }
+  ];
+  
+  localStorage.setItem('swiftbank_applications', JSON.stringify(defaultData));
+  return defaultData;
+}
+
+// Load data from localStorage or create default
+window.mockApplications = loadApplicationsFromStorage();
+
+// Save to localStorage whenever data changes
+function saveApplicationsToStorage() {
+  localStorage.setItem('swiftbank_applications', JSON.stringify(window.mockApplications));
+}
+
+// Override API to use shared data
+AdminAPI.getApplications = function(status) {
+  return new Promise((resolve) => {
+    // Reload from storage in case another tab changed it
+    const stored = localStorage.getItem('swiftbank_applications');
+    if (stored) {
+      window.mockApplications = JSON.parse(stored);
+    }
+    
+    let filtered = window.mockApplications;
+    if (status && status !== 'all') {
+      filtered = window.mockApplications.filter(app => app.status === status);
+    }
+    resolve(filtered);
+  });
+};
+
+// Save when creating or deleting applications
+AdminAPI.createApplication = function(data) {
+  return new Promise((resolve) => {
+    const newApp = {
+      id: String(window.mockApplications.length + 1),
+      ...data,
+      createdAt: new Date().toISOString(),
+      status: 'pending'
+    };
+    window.mockApplications.push(newApp);
+    saveApplicationsToStorage();
+    resolve(newApp);
+  });
+};
+
+AdminAPI.deleteApplication = function(id) {
+  return new Promise((resolve) => {
+    const index = window.mockApplications.findIndex(app => app.id === id);
+    if (index !== -1) {
+      window.mockApplications.splice(index, 1);
+      saveApplicationsToStorage();
+    }
+    resolve({ success: true });
+  });
+};
+
+// Override API to use shared data
+AdminAPI.getApplications = function(status) {
+  return new Promise((resolve) => {
+    let filtered = window.mockApplications;
+    if (status && status !== 'all') {
+      filtered = window.mockApplications.filter(app => app.status === status);
+    }
+    resolve(filtered);
+  });
+};
+
+// Override the API call to use mock data
+const originalGetApplications = AdminAPI.getApplications;
+AdminAPI.getApplications = function(status) {
+  return new Promise((resolve) => {
+    let filtered = mockApplications;
+    if (status && status !== 'all') {
+      filtered = mockApplications.filter(app => app.status === status);
+    }
+    resolve(filtered);
+  });
+};
+
+
+    //  EVENT LISTENERS 
+    document.getElementById('status-filter').addEventListener('change', loadApplications);
+    document.getElementById('search-input').addEventListener('input', loadApplications);
+
+    //  INITIAL LOAD 
+    loadApplications();
+  </script>
+
+</body>
+</html>

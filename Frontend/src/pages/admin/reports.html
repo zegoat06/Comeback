@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports - Admin</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- OUR CSS -->
+  <link rel="stylesheet" href="../../css/variables.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+
+  <style>
+  /* FORCE STATS GRID HORIZONTAL */
+  .stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: var(--space-4) !important;
+    margin-bottom: var(--space-6) !important;
+  }
+
+  .stats-grid .stat-card {
+    background: #1E3A5F;
+    border: 1px solid #374151;
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+
+  .stats-grid .stat-card .stat-number {
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+    font-family: var(--font-heading);
+    color: #FFFFFF;
+  }
+
+  .stats-grid .stat-card .stat-label {
+    font-size: var(--text-sm);
+    color: #9CA3AF;
+    margin-top: var(--space-1);
+  }
+
+  .stats-grid .stat-card .stat-icon {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-2);
+    display: block;
+  }
+
+  /* Force horizontal on all screen sizes */
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stats-grid {
+      grid-template-columns: 1fr 1fr !important;
+    }
+  }
+
+  .report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    margin-top: var(--space-4);
+  }
+
+  .chart-container {
+    background: #1E3A5F;
+    border: 1px solid #374151;
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+  }
+
+  .chart-container h3 {
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    margin-bottom: var(--space-4);
+    font-family: var(--font-heading);
+    color: #FFFFFF;
+  }
+
+  .chart-bars {
+    display: flex;
+    gap: var(--space-6);
+    align-items: flex-end;
+    height: 160px;
+    padding-top: var(--space-4);
+    justify-content: center;
+  }
+
+  .chart-bar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    max-width: 80px;
+  }
+
+  .chart-bar {
+    width: 100%;
+    max-width: 50px;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    min-height: 16px;
+    transition: height 0.6s ease;
+  }
+
+  .chart-bar-label {
+    font-size: var(--text-xs);
+    color: #9CA3AF;
+    margin-top: var(--space-2);
+    text-align: center;
+    font-weight: var(--weight-medium);
+  }
+
+  .chart-bar-value {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+    color: #FFFFFF;
+    margin-bottom: var(--space-1);
+  }
+
+  @media (max-width: 768px) {
+    .report-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar-container"></div>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <h1 class="header-title">Reports</h1>
+      <span class="admin-badge">Admin</span>
+    </div>
+    <div class="header-right">
+      <div class="header-user">
+        <span class="avatar" id="admin-avatar">A</span>
+        <span id="admin-name">Admin</span>
+      </div>
+      <button onclick="logout()" class="btn btn-ghost btn-sm">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- STATS GRID -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <span class="stat-icon">📋</span>
+        <div class="stat-number" id="stat-total">0</div>
+        <div class="stat-label">Total Applications</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">✅</span>
+        <div class="stat-number" id="stat-approved">0</div>
+        <div class="stat-label">Approved</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">❌</span>
+        <div class="stat-number" id="stat-rejected">0</div>
+        <div class="stat-label">Rejected</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📈</span>
+        <div class="stat-number" id="stat-approval-rate">0%</div>
+        <div class="stat-label">Approval Rate</div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="report-grid">
+      <!-- Status Chart -->
+      <div class="chart-container">
+        <h3>📊 Applications by Status</h3>
+        <div class="chart-bars" id="status-chart">
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-value" id="status-pending-count">0</div>
+            <div class="chart-bar" id="status-pending-bar" style="height: 40px; background: #F59E0B;"></div>
+            <span class="chart-bar-label">Pending</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-value" id="status-approved-count">0</div>
+            <div class="chart-bar" id="status-approved-bar" style="height: 40px; background: #10B981;"></div>
+            <span class="chart-bar-label">Approved</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-value" id="status-rejected-count">0</div>
+            <div class="chart-bar" id="status-rejected-bar" style="height: 40px; background: #EF4444;"></div>
+            <span class="chart-bar-label">Rejected</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Type Chart -->
+      <div class="chart-container">
+        <h3>📈 Applications by Account Type</h3>
+        <div class="chart-bars" id="type-chart">
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-value" id="type-savings-count">0</div>
+            <div class="chart-bar" id="type-savings-bar" style="height: 40px; background: #3B82F6;"></div>
+            <span class="chart-bar-label">Savings</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-value" id="type-current-count">0</div>
+            <div class="chart-bar" id="type-current-bar" style="height: 40px; background: #60A5FA;"></div>
+            <span class="chart-bar-label">Current</span>
+          </div>
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-value" id="type-fixed-count">0</div>
+            <div class="chart-bar" id="type-fixed-bar" style="height: 40px; background: #93BBFC;"></div>
+            <span class="chart-bar-label">Fixed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card" style="margin-top: var(--space-6);">
+      <div class="card-header">
+        <h2 class="card-title">Recent Activity</h2>
+      </div>
+      <div class="table-container" id="activity-table">
+        <div class="empty-state">
+          <span class="empty-icon">📭</span>
+          <h3>No recent activity</h3>
+          <p>Activity will appear here as applications are processed.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- JAVASCRIPT -->
+  <script src="../../js/api.js"></script>
+  <script src="../../js/components.js"></script>
+
+  <script>
+    // LOAD SIDEBAR
+    fetch('../../pages/shared/sidebar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('sidebar-container').innerHTML = html;
+        document.querySelector('.sidebar-nav a[data-page="reports"]')?.classList.add('active');
+      });
+
+    // LOAD ADMIN NAME
+    const user = getCurrentUser();
+    if (user) {
+      document.getElementById('admin-name').textContent = user.name || 'Admin';
+      document.getElementById('admin-avatar').textContent = (user.name || 'A')[0].toUpperCase();
+    }
+
+    // LOAD DATA FROM localStorage OR USE DEFAULT
+    function getApplicationsFromStorage() {
+      const stored = localStorage.getItem('swiftbank_applications');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      // Default data
+      const defaultData = [
+        { id: '1', customerName: 'John Doe', accountType: 'Savings', status: 'pending', createdAt: '2026-07-19T10:30:00' },
+        { id: '2', customerName: 'Mary Jane', accountType: 'Current', status: 'pending', createdAt: '2026-07-18T14:20:00' },
+        { id: '3', customerName: 'Peter Mwale', accountType: 'Fixed Deposit', status: 'approved', createdAt: '2026-07-17T09:15:00' },
+        { id: '4', customerName: 'Sarah Banda', accountType: 'Savings', status: 'rejected', createdAt: '2026-07-16T16:45:00' },
+        { id: '5', customerName: 'David Kumwenda', accountType: 'Current', status: 'resubmission', createdAt: '2026-07-15T11:00:00' }
+      ];
+      localStorage.setItem('swiftbank_applications', JSON.stringify(defaultData));
+      return defaultData;
+    }
+
+    // GENERATE REPORT DATA
+    function generateReportData() {
+      const apps = getApplicationsFromStorage();
+      
+      const total = apps.length;
+      const approved = apps.filter(a => a.status === 'approved').length;
+      const rejected = apps.filter(a => a.status === 'rejected').length;
+      const pending = apps.filter(a => a.status === 'pending' || a.status === 'resubmission').length;
+      
+      const byAccountType = {
+        Savings: apps.filter(a => a.accountType === 'Savings').length,
+        Current: apps.filter(a => a.accountType === 'Current').length,
+        Fixed: apps.filter(a => a.accountType === 'Fixed Deposit' || a.accountType === 'Fixed').length
+      };
+      
+      // Recent activity (last 5)
+      const recentActivity = apps
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5)
+        .map(a => ({
+          action: a.status,
+          customerName: a.customerName,
+          time: a.createdAt
+        }));
+      
+      return {
+        total,
+        approved,
+        rejected,
+        pending,
+        byAccountType,
+        recentActivity
+      };
+    }
+
+    // LOAD REPORTS
+    function loadReports() {
+      try {
+        const data = generateReportData();
+
+        // Update stats
+        document.getElementById('stat-total').textContent = data.total || 0;
+        document.getElementById('stat-approved').textContent = data.approved || 0;
+        document.getElementById('stat-rejected').textContent = data.rejected || 0;
+
+        const rate = data.total > 0 ? Math.round((data.approved / data.total) * 100) : 0;
+        document.getElementById('stat-approval-rate').textContent = `${rate}%`;
+
+        // Update status chart
+        const total = data.total || 1;
+        const maxHeight = 120;
+        const pendingHeight = Math.max(20, ((data.pending || 0) / total) * maxHeight);
+        const approvedHeight = Math.max(20, ((data.approved || 0) / total) * maxHeight);
+        const rejectedHeight = Math.max(20, ((data.rejected || 0) / total) * maxHeight);
+
+        document.getElementById('status-pending-bar').style.height = `${pendingHeight}px`;
+        document.getElementById('status-approved-bar').style.height = `${approvedHeight}px`;
+        document.getElementById('status-rejected-bar').style.height = `${rejectedHeight}px`;
+
+        document.getElementById('status-pending-count').textContent = data.pending || 0;
+        document.getElementById('status-approved-count').textContent = data.approved || 0;
+        document.getElementById('status-rejected-count').textContent = data.rejected || 0;
+
+        // Update account type chart
+        const typeData = data.byAccountType || { Savings: 0, Current: 0, Fixed: 0 };
+        const typeTotal = typeData.Savings + typeData.Current + typeData.Fixed || 1;
+        const savingsHeight = Math.max(20, (typeData.Savings / typeTotal) * maxHeight);
+        const currentHeight = Math.max(20, (typeData.Current / typeTotal) * maxHeight);
+        const fixedHeight = Math.max(20, (typeData.Fixed / typeTotal) * maxHeight);
+
+        document.getElementById('type-savings-bar').style.height = `${savingsHeight}px`;
+        document.getElementById('type-current-bar').style.height = `${currentHeight}px`;
+        document.getElementById('type-fixed-bar').style.height = `${fixedHeight}px`;
+
+        document.getElementById('type-savings-count').textContent = typeData.Savings || 0;
+        document.getElementById('type-current-count').textContent = typeData.Current || 0;
+        document.getElementById('type-fixed-count').textContent = typeData.Fixed || 0;
+
+        // Activity table
+        const container = document.getElementById('activity-table');
+        if (data.recentActivity && data.recentActivity.length > 0) {
+          let html = `
+            <table>
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Customer</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+          data.recentActivity.forEach(act => {
+            const badgeClass = act.action === 'approved' ? 'badge-approved' :
+                              act.action === 'rejected' ? 'badge-rejected' :
+                              act.action === 'resubmission' ? 'badge-resubmission' : 'badge-pending';
+            const label = act.action ? act.action.charAt(0).toUpperCase() + act.action.slice(1) : 'Action';
+            html += `
+              <tr>
+                <td><span class="badge ${badgeClass}">${label}</span></td>
+                <td>${act.customerName || 'Unknown'}</td>
+                <td>${act.time ? new Date(act.time).toLocaleString() : '-'}</td>
+              </tr>
+            `;
+          });
+          html += `</tbody></table>`;
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = `
+            <div class="empty-state">
+              <span class="empty-icon">📭</span>
+              <h3>No recent activity</h3>
+              <p>Activity will appear here as applications are processed.</p>
+            </div>
+          `;
+        }
+
+      } catch (error) {
+        console.error('Error loading reports:', error);
+        showToast('Failed to load reports', 'error');
+      }
+    }
+
+    // INITIAL LOAD
+    loadReports();
+
+    // RELOAD REPORTS WHEN DATA CHANGES
+    // This refreshes the reports page when you come back to it
+    window.addEventListener('focus', function() {
+      loadReports();
+    });
+  </script>
+
+</body>
+</html>

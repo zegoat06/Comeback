@@ -1,0 +1,110 @@
+/* VARIABLES.CSS - Design Tokens */
+
+:root {
+  /*  COLORS */
+  
+  /* Primary - Navy */
+  --navy-900: #0A1F44;
+  --navy-800: #0F2B5C;
+  --navy-700: #16407E;
+  --navy-600: #1D55A0;
+  --navy-500: #256BC2;
+  --navy-400: #4A8AD4;
+  --navy-300: #7AACE0;
+  --navy-200: #B0CCEC;
+  --navy-100: #D6E4F5;
+  --navy-50: #EBF2FA;
+
+  /* Accent - Gold */
+  --gold-500: #D4AF37;
+  --gold-400: #E0C55C;
+  --gold-300: #ECD880;
+  --gold-200: #F5EAA8;
+  --gold-100: #FBF5D4;
+
+  /* Status Colors */
+  --success: #1E7A4B;
+  --success-light: #E6F4EC;
+  --warning: #A15C1E;
+  --warning-light: #FDF0E6;
+  --danger: #B3261E;
+  --danger-light: #FDE8E6;
+  --info: #1E6FA1;
+  --info-light: #E6F0F7;
+
+  /* Neutral */
+  --surface: #F8FAFC;
+  --ink: #1A1F36;
+  --ink-secondary: #4A5068;
+  --ink-tertiary: #8A90A8;
+  --border: #E2E6EE;
+  --white: #FFFFFF;
+
+  /* TYPOGRAPHY */
+  
+  --font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; 
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  /* Font Sizes */
+  --text-xs: 0.6875rem;    /* 11px */
+  --text-sm: 0.8125rem;    /* 13px */
+  --text-base: 0.9375rem;  /* 15px */
+  --text-lg: 1.25rem;      /* 20px */
+  --text-xl: 2rem;         /* 32px */
+  --text-2xl: 2.5rem;      /* 40px */
+  --text-3xl: 3.25rem;     /* 52px */
+
+  /* Font Weights */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  /* Line Heights */
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /*  SPACING (8px base)  */
+  
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+
+  /*  BORDER RADIUS */
+  
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /*  SHADOWS  */
+  
+  --shadow-sm: 0 1px 3px rgba(10, 31, 68, 0.06);
+  --shadow-md: 0 2px 8px rgba(10, 31, 68, 0.08);
+  --shadow-lg: 0 4px 20px rgba(10, 31, 68, 0.10);
+  --shadow-xl: 0 8px 40px rgba(10, 31, 68, 0.14);
+
+  /*  TRANSITIONS */
+  
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /*  LAYOUT  */
+  
+  --sidebar-width: 240px; 
+  --header-height: 64px; 
+  --max-width: 1280px; 
+  --content-padding: var(--space-6); 
+}
