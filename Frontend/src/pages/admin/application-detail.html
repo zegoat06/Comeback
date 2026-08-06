@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Application Detail - Admin</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <link rel="stylesheet" href="../../css/variables.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+
+  <style>
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+      margin-top: var(--space-4);
+    }
+
+    .detail-section {
+      background: #1E3A5F;
+      border: 1px solid #374151;
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+    }
+
+    .detail-section h3 {
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid #374151;
+      color: #FFFFFF;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-2) 0;
+      font-size: var(--text-sm);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-row .label {
+      color: #FFFFFF;
+    }
+
+    .detail-row .value {
+      font-weight: var(--weight-medium);
+      text-align: right;
+      color: #FFFFFF;
+    }
+
+    .id-viewer {
+      margin-top: var(--space-4);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid #374151;
+      cursor: pointer;
+      transition: box-shadow var(--transition-fast);
+    }
+
+    .id-viewer:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .id-viewer img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .id-viewer .zoom-hint {
+      text-align: center;
+      padding: var(--space-2);
+      font-size: var(--text-xs);
+      color: #9CA3AF;
+      background: #0A1F44;
+    }
+
+    .action-bar {
+      display: flex;
+      gap: var(--space-3);
+      margin-top: var(--space-6);
+      flex-wrap: wrap;
+    }
+
+    .action-bar .btn {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .verification-check {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      background: #0A1F44;
+      border-radius: var(--radius-md);
+      margin: var(--space-4) 0;
+    }
+
+    .verification-check input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: #3B82F6;
+      cursor: pointer;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .verification-check label {
+      font-size: var(--text-sm);
+      cursor: pointer;
+      color: #FFFFFF;
+    }
+
+    .verification-check label strong {
+      display: block;
+      margin-bottom: var(--space-1);
+    }
+
+    .verification-check label span {
+      color: #9CA3AF;
+      font-weight: var(--weight-regular);
+    }
+
+    @media (max-width: 768px) {
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-bar .btn {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="sidebar-container"></div>
+
+  <header class="app-header">
+    <div class="header-left">
+      <h1 class="header-title">Application Review</h1>
+      <span class="admin-badge">Admin</span>
+    </div>
+    <div class="header-right">
+      <div class="header-user">
+        <span class="avatar" id="admin-avatar">A</span>
+        <span id="admin-name">Admin</span>
+      </div>
+      <button onclick="logout()" class="btn btn-ghost btn-sm">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); flex-wrap: wrap; gap: var(--space-3);">
+      <div>
+        <a href="applications.html" class="btn btn-ghost btn-sm">
+          <i class="fas fa-arrow-left"></i> Back to Queue
+        </a>
+      </div>
+      <span id="status-badge" class="badge badge-pending">Pending Review</span>
+    </div>
+
+    <div class="card" style="background: #1E3A5F; border-color: #374151;">
+      <div class="card-header" style="border-bottom-color: #374151;">
+        <h2 class="card-title" id="customer-name" style="color: #FFFFFF;">Loading...</h2>
+        <span id="application-id" style="font-size: var(--text-sm); color: #9CA3AF;">#---</span>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-section">
+          <h3>👤 Customer Information</h3>
+          <div class="detail-row">
+            <span class="label">Full Name</span>
+            <span class="value" id="detail-name">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Email</span>
+            <span class="value" id="detail-email">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Phone</span>
+            <span class="value" id="detail-phone">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Date of Birth</span>
+            <span class="value" id="detail-dob">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">National ID Number</span>
+            <span class="value" id="detail-id-number">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Account Type</span>
+            <span class="value" id="detail-account-type">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Occupation</span>
+            <span class="value" id="detail-occupation">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Monthly Income</span>
+            <span class="value" id="detail-income">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Address</span>
+            <span class="value" id="detail-address">-</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>🪪 National ID</h3>
+
+          <div class="verification-check">
+            <input type="checkbox" id="verify-check" />
+            <label for="verify-check">
+              <strong>Document is legible and matches applicant</strong>
+              <span>Check this box after verifying the ID photo matches the customer's details above.</span>
+            </label>
+          </div>
+
+          <div class="id-viewer" id="id-viewer" onclick="openIDZoom()">
+            <img id="id-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%231E3A5F'/%3E%3Ctext x='50' y='150' font-family='Arial' font-size='20' fill='%239CA3AF'%3ENational ID Preview%3C/text%3E%3C/svg%3E" alt="National ID" />
+            <div class="zoom-hint">
+              <i class="fas fa-search-plus"></i> Click to zoom
+            </div>
+          </div>
+
+          <div class="action-bar">
+            <button class="btn btn-secondary" id="btn-approve" disabled onclick="approveApplication()">
+              <i class="fas fa-check"></i> Approve
+            </button>
+            <button class="btn btn-danger" onclick="rejectApplication()">
+              <i class="fas fa-times"></i> Reject
+            </button>
+            <button class="btn btn-ghost" onclick="requestResubmission()">
+              <i class="fas fa-redo"></i> Resubmit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="toast-container"></div>
+
+  <div class="modal-overlay" id="zoom-modal">
+    <div class="modal" style="max-width: 800px;">
+      <div class="modal-header">
+        <h2 class="modal-title">National ID - Full View</h2>
+        <button class="modal-close" onclick="closeZoomModal()">✕</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <img id="zoom-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%231E3A5F'/%3E%3Ctext x='50' y='150' font-family='Arial' font-size='20' fill='%239CA3AF'%3ENational ID Preview%3C/text%3E%3C/svg%3E" alt="ID Full View" style="max-width: 100%; max-height: 70vh; border-radius: var(--radius-sm);" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeZoomModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/components.js"></script>
+
+  <script>
+    function getApplicationId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    const appId = getApplicationId();
+    let currentApplication = null;
+
+    //  COMPLETE DATA WITH EMAIL & PHONE FROM USERS PAGE 
+    const allApplications = [
+      {
+        id: '1',
+        customerName: 'John Doe',
+        email: 'john@example.com',
+        phone: '0999123456',
+        dateOfBirth: '15 March 1985',
+        idNumber: 'ID-123456789',
+        accountType: 'Savings',
+        occupation: 'Software Engineer',
+        monthlyIncome: 850000,
+        address: 'Area 25, Lilongwe',
+        idImageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231E3A5F"/%3E%3Ctext x="50" y="150" font-family="Arial" font-size="20" fill="%239CA3AF"%3ENational ID%3C/text%3E%3C/svg%3E',
+        status: 'pending',
+        createdAt: '2026-07-19T10:30:00'
+      },
+      {
+        id: '2',
+        customerName: 'Mary Jane',
+        email: 'mary@example.com',
+        phone: '0999234567',
+        dateOfBirth: '22 July 1990',
+        idNumber: 'ID-987654321',
+        accountType: 'Current',
+        occupation: 'Accountant',
+        monthlyIncome: 650000,
+        address: 'Area 12, Blantyre',
+        idImageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231E3A5F"/%3E%3Ctext x="50" y="150" font-family="Arial" font-size="20" fill="%239CA3AF"%3ENational ID%3C/text%3E%3C/svg%3E',
+        status: 'pending',
+        createdAt: '2026-07-18T14:20:00'
+      },
+      {
+        id: '3',
+        customerName: 'Peter Mwale',
+        email: 'peter@example.com',
+        phone: '0999345678',
+        dateOfBirth: '10 November 1982',
+        idNumber: 'ID-456789123',
+        accountType: 'Fixed Deposit',
+        occupation: 'Business Owner',
+        monthlyIncome: 1800000,
+        address: 'Area 18, Lilongwe',
+        idImageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231E3A5F"/%3E%3Ctext x="50" y="150" font-family="Arial" font-size="20" fill="%239CA3AF"%3ENational ID%3C/text%3E%3C/svg%3E',
+        status: 'pending',
+        createdAt: '2026-07-17T09:15:00'
+      },
+      {
+        id: '4',
+        customerName: 'Sarah Banda',
+        email: 'sarah@example.com',
+        phone: '0999456789',
+        dateOfBirth: '5 December 1994',
+        idNumber: 'ID-789123456',
+        accountType: 'Savings',
+        occupation: 'Teacher',
+        monthlyIncome: 450000,
+        address: 'Area 10, Zomba',
+        idImageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231E3A5F"/%3E%3Ctext x="50" y="150" font-family="Arial" font-size="20" fill="%239CA3AF"%3ENational ID%3C/text%3E%3C/svg%3E',
+        status: 'pending',
+        createdAt: '2026-07-16T16:45:00'
+      },
+      {
+        id: '5',
+        customerName: 'David Kumwenda',
+        email: 'david@example.com',
+        phone: '0999567890',
+        dateOfBirth: '28 September 1988',
+        idNumber: 'ID-321654987',
+        accountType: 'Current',
+        occupation: 'Doctor',
+        monthlyIncome: 1500000,
+        address: 'Area 14, Mzuzu',
+        idImageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231E3A5F"/%3E%3Ctext x="50" y="150" font-family="Arial" font-size="20" fill="%239CA3AF"%3ENational ID%3C/text%3E%3C/svg%3E',
+        status: 'pending',
+        createdAt: '2026-07-15T11:00:00'
+      }
+    ];
+
+    function saveAllApplicationsToStorage() {
+      localStorage.setItem('swiftbank_applications', JSON.stringify(allApplications));
+    }
+
+    function loadApplicationsFromStorage() {
+      const stored = localStorage.getItem('swiftbank_applications');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      saveAllApplicationsToStorage();
+      return allApplications;
+    }
+
+    function getApplicationById(id) {
+      if (!id) {
+        return allApplications[0];
+      }
+      const apps = loadApplicationsFromStorage();
+      const found = apps.find(app => app.id === id);
+      if (found) {
+        return found;
+      }
+      return allApplications[0];
+    }
+
+    function updateApplicationStatus(id, newStatus) {
+      const apps = loadApplicationsFromStorage();
+      const app = apps.find(a => a.id === id);
+      if (app) {
+        app.status = newStatus;
+        localStorage.setItem('swiftbank_applications', JSON.stringify(apps));
+        return true;
+      }
+      return false;
+    }
+
+    fetch('../../pages/shared/sidebar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('sidebar-container').innerHTML = html;
+        document.querySelector('.sidebar-nav a[data-page="applications"]')?.classList.add('active');
+      });
+
+    const user = getCurrentUser();
+    if (user) {
+      document.getElementById('admin-name').textContent = user.name || 'Admin';
+      document.getElementById('admin-avatar').textContent = (user.name || 'A')[0].toUpperCase();
+    }
+
+    function loadApplication() {
+      try {
+        currentApplication = getApplicationById(appId);
+        
+        document.getElementById('customer-name').textContent = currentApplication.customerName || 'Unknown Customer';
+        document.getElementById('application-id').textContent = '#' + (currentApplication.id || '---');
+
+        document.getElementById('detail-name').textContent = currentApplication.customerName || '-';
+        document.getElementById('detail-email').textContent = currentApplication.email || '-';
+        document.getElementById('detail-phone').textContent = currentApplication.phone || '-';
+        document.getElementById('detail-dob').textContent = currentApplication.dateOfBirth || '-';
+        document.getElementById('detail-id-number').textContent = currentApplication.idNumber || '-';
+        document.getElementById('detail-account-type').textContent = currentApplication.accountType || '-';
+        document.getElementById('detail-occupation').textContent = currentApplication.occupation || '-';
+        document.getElementById('detail-income').textContent = currentApplication.monthlyIncome ? 'K' + currentApplication.monthlyIncome.toLocaleString() : '-';
+        document.getElementById('detail-address').textContent = currentApplication.address || '-';
+
+        if (currentApplication.idImageUrl) {
+          document.getElementById('id-image').src = currentApplication.idImageUrl;
+          document.getElementById('zoom-image').src = currentApplication.idImageUrl;
+        }
+
+        const statusBadge = document.getElementById('status-badge');
+        const status = currentApplication.status || 'pending';
+        statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        statusBadge.className = 'badge badge-' + status;
+
+        if (status === 'approved' || status === 'rejected') {
+          document.getElementById('btn-approve').disabled = true;
+          document.getElementById('btn-approve').style.opacity = '0.5';
+          document.getElementById('verify-check').disabled = true;
+        }
+
+      } catch (error) {
+        console.error('Error loading application:', error);
+        showToast('Failed to load application details', 'error');
+      }
+    }
+
+    document.getElementById('verify-check').addEventListener('change', function() {
+      document.getElementById('btn-approve').disabled = !this.checked;
+    });
+
+    function approveApplication() {
+      if (!currentApplication) return;
+
+      openModal({
+        title: '✅ Approve Application',
+        body: `
+          <p>Are you sure you want to approve <strong>${currentApplication.customerName || 'this application'}</strong>?</p>
+          <p style="color: var(--ink-secondary); font-size: var(--text-sm); margin-top: var(--space-2);">
+            This will create a bank account for the customer.
+          </p>
+        `,
+        confirmText: 'Yes, Approve',
+        onConfirm: function() {
+          try {
+            updateApplicationStatus(currentApplication.id, 'approved');
+            showToast('Application approved successfully! ✅', 'success');
+            const badge = document.getElementById('status-badge');
+            badge.textContent = 'Approved';
+            badge.className = 'badge badge-approved';
+            document.getElementById('btn-approve').disabled = true;
+            document.getElementById('btn-approve').style.opacity = '0.5';
+            document.getElementById('verify-check').disabled = true;
+          } catch (error) {
+            console.error('Error approving:', error);
+            showToast('Failed to approve application', 'error');
+          }
+        }
+      });
+    }
+
+    function rejectApplication() {
+  if (!currentApplication) return;
+
+  openModal({
+    title: '❌ Reject Application',
+    body: `
+      <p>Please provide a reason for rejecting <strong>${currentApplication.customerName || 'this application'}</strong>:</p>
+      <div class="input-group">
+        <textarea id="reject-reason" placeholder="Enter rejection reason..." style="min-height: 80px;"></textarea>
+      </div>
+    `,
+    confirmText: 'Yes, Reject',
+    onConfirm: function() {
+      const reason = document.getElementById('reject-reason').value;
+      if (!reason) {
+        showToast('Please provide a reason for rejection', 'error');
+        return;
+      }
+      try {
+        updateApplicationStatus(currentApplication.id, 'rejected');
+        showToast('Application rejected', 'warning');
+        // Force reload the application data
+        currentApplication = getApplicationById(currentApplication.id);
+        updateUIAfterAction();
+      } catch (error) {
+        console.error('Error rejecting:', error);
+        showToast('Failed to reject application', 'error');
+      }
+    }
+  });
+}
+    function requestResubmission() {
+  if (!currentApplication) return;
+
+  openModal({
+    title: '🔄 Request Resubmission',
+    body: `
+      <p>Tell <strong>${currentApplication.customerName || 'the customer'}</strong> what needs to be fixed:</p>
+      <div class="input-group">
+        <textarea id="resubmit-reason" placeholder="e.g., 'Please upload a clearer photo of your National ID'" style="min-height: 80px;"></textarea>
+      </div>
+    `,
+    confirmText: 'Send Request',
+    onConfirm: function() {
+      const reason = document.getElementById('resubmit-reason').value;
+      if (!reason) {
+        showToast('Please provide details for the customer', 'error');
+        return;
+      }
+      try {
+        updateApplicationStatus(currentApplication.id, 'resubmission');
+        showToast('Resubmission requested 📧', 'info');
+        // Force reload the application data
+        currentApplication = getApplicationById(currentApplication.id);
+        updateUIAfterAction();
+      } catch (error) {
+        console.error('Error requesting resubmission:', error);
+        showToast('Failed to request resubmission', 'error');
+      }
+    }
+  });
+}
+
+function updateUIAfterAction() {
+  // Update status badge
+  const statusBadge = document.getElementById('status-badge');
+  const status = currentApplication.status || 'pending';
+  statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+  statusBadge.className = 'badge badge-' + status;
+
+  // Disable buttons if approved or rejected
+  if (status === 'approved' || status === 'rejected') {
+    document.getElementById('btn-approve').disabled = true;
+    document.getElementById('btn-approve').style.opacity = '0.5';
+    document.getElementById('verify-check').disabled = true;
+  }
+}
+
+    function openIDZoom() {
+      const modal = document.getElementById('zoom-modal');
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeZoomModal() {
+      const modal = document.getElementById('zoom-modal');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('zoom-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeZoomModal();
+      }
+    });
+
+    loadApplication();
+  </script>
+
+</body>
+</html>
