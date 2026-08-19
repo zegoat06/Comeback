@@ -32,9 +32,9 @@ loginForm.addEventListener("submit", function (event) {
         return;
     }
 
-    // Example login credentials
+    /*Example login credentials
     const correctEmail = "admin@gmail.com";
-    const correctPassword = "12345";
+    const correctPassword = "12345"; */
 
     if (userEmail === correctEmail && userPassword === correctPassword) {
 
