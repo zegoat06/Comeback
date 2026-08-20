@@ -182,7 +182,7 @@ function formatDateTime(dateStr) {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-// ---------- Demo Login Function ----------
+// ---------- Demo Login Function - FIXED to use localStorage ----------
 function demoLogin() {
   const user = {
     id: 'demo-' + Date.now(),
@@ -192,9 +192,17 @@ function demoLogin() {
     role: 'customer'
   };
   
-  sessionStorage.setItem('token', 'demo-token-' + Date.now());
-  sessionStorage.setItem('role', 'customer');
-  sessionStorage.setItem('user', JSON.stringify(user));
+  // FIX: Use setToken, setRole, setCurrentUser from api.js
+  if (typeof setToken !== 'undefined' && typeof setRole !== 'undefined' && typeof setCurrentUser !== 'undefined') {
+    setToken('demo-token-' + Date.now());
+    setRole('customer');
+    setCurrentUser(user);
+  } else {
+    // Fallback to localStorage
+    localStorage.setItem('token', 'demo-token-' + Date.now());
+    localStorage.setItem('role', 'customer');
+    localStorage.setItem('user', JSON.stringify(user));
+  }
   
   showToast('Continuing as guest...', 'success');
   setTimeout(() => {

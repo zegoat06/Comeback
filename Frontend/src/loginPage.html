@@ -54,7 +54,8 @@
       
       <div style="text-align:center;">
         <p class="text-muted" style="font-size:0.75rem;">Quick Demo</p>
-        <button class="btn btn-secondary btn-sm" onclick="demoLogin()">
+        <!-- FIX: Use the global demoLogin from app.js -->
+        <button class="btn btn-secondary btn-sm" onclick="window.demoLogin()">
           <i class="fas fa-user"></i> Continue as Guest
         </button>
       </div>
@@ -80,12 +81,13 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
 
       try {
-        const result = await api.login({ email, password });
+        const result = await AuthAPI.login(email, password);
         showToast('Login successful!', 'success');
         
-        sessionStorage.setItem('token', result.token);
-        sessionStorage.setItem('role', result.role || 'customer');
-        sessionStorage.setItem('user', JSON.stringify(result.user));
+        // Use setToken, setRole, setCurrentUser from api.js
+        setToken(result.token);
+        setRole(result.role || 'customer');
+        setCurrentUser(result.user);
 
         setTimeout(() => {
           window.location.href = './pages/customer/dashboard.html';
@@ -99,7 +101,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      const token = sessionStorage.getItem('token');
+      const token = getToken();
       if (token) {
         window.location.href = './pages/customer/dashboard.html';
       }

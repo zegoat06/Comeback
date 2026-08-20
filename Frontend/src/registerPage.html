@@ -92,7 +92,8 @@
       }
 
       try {
-        await api.register({ fullName, email, phoneNumber: phone, password });
+        // FIX: Use AuthAPI.register instead of api.register
+        await AuthAPI.register({ fullName, email, phoneNumber: phone, password });
         showToast('Registration successful! Please log in.', 'success');
         setTimeout(() => {
           window.location.href = './loginPage.html';
