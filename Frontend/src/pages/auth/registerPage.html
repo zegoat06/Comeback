@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Login page</title>
+    <link rel="stylesheet" href="../../css/registerPage.css">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-box">
+            <div class="logo">
+                🏦Swift<span>Bank</span>
+            </div>
+            <p class="subtitle">Please Register</p>
+            <form id="registerForm">
+
+                <div class="input-group">
+                    <label>Fullname</label>
+                    <input type="text" id="fullname" placeholder="👤Enter Fullname" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="✉️Enter email" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Contact</label>
+                    <input type="tel" id="contact" placeholder="📞+265....." required>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="🔏Enter password" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="🔏Confirm Password" required>
+                </div>
+
+                <div class="options">
+                    <label class="remember">
+                        <input type="checkbox" id="terms">
+                        <p>I accept all terms and conditions</p>
+                    </label>
+                </div>
+
+                <button type="submit">Register</button>
+
+                <p class="signup-text">Already have an account?</p>
+                <a href="../../pages/auth/loginPage.html">Login</a>
+
+            </form>
+        </div>
+    </div>
+
+    <script src="../../js/registerPage.js"></script>
+    
+</body>
+</html>

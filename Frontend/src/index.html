@@ -180,68 +180,51 @@
   <script src="./js/config.js"></script>
   <script src="./js/app.js"></script>
   <script>
-  //  BANK DATA 
-  const BANKS = [
-    { id: 'nbm', name: 'National Bank of Malawi', shortName: 'NBM', icon: 'fa-university', color: '#0A1F44', description: 'Full-service commercial bank', badge: 'Popular' },
-    { id: 'fdh', name: 'FDH Bank', shortName: 'FDH', icon: 'fa-building', color: '#003366', description: 'Leading financial services provider', badge: 'Fast' },
-    { id: 'standard', name: 'Standard Bank', shortName: 'Standard', icon: 'fa-landmark', color: '#0066b3', description: 'Global banking network' },
-    { id: 'ecobank', name: 'Ecobank Malawi', shortName: 'Ecobank', icon: 'fa-globe-africa', color: '#006b3e', description: 'Pan-African banking' },
-    { id: 'opportunity', name: 'Opportunity Bank', shortName: 'Opportunity', icon: 'fa-hand-holding-usd', color: '#f57c00', description: 'Microfinance & SME banking', badge: 'SME Focus' },
-    { id: 'mybucks', name: 'MyBucks Banking', shortName: 'MyBucks', icon: 'fa-coins', color: '#e65100', description: 'Digital-first banking' },
-    { id: 'nbs', name: 'NBS Bank', shortName: 'NBS', icon: 'fa-piggy-bank', color: '#2e7d32', description: 'Community banking' },
-    { id: 'first-capital', name: 'First Capital Bank', shortName: 'First Capital', icon: 'fa-chart-line', color: '#b71c1c', description: 'Corporate & personal banking' }
-  ];
+    const BANKS = [
+      { id: 'nbm', name: 'National Bank of Malawi', shortName: 'NBM', icon: 'fa-university', color: '#0A1F44', description: 'Full-service commercial bank', badge: 'Popular' },
+      { id: 'fdh', name: 'FDH Bank', shortName: 'FDH', icon: 'fa-building', color: '#003366', description: 'Leading financial services provider', badge: 'Fast' },
+      { id: 'standard', name: 'Standard Bank', shortName: 'Standard', icon: 'fa-landmark', color: '#0066b3', description: 'Global banking network' },
+      { id: 'ecobank', name: 'Ecobank Malawi', shortName: 'Ecobank', icon: 'fa-globe-africa', color: '#006b3e', description: 'Pan-African banking' },
+      { id: 'opportunity', name: 'Opportunity Bank', shortName: 'Opportunity', icon: 'fa-hand-holding-usd', color: '#f57c00', description: 'Microfinance & SME banking', badge: 'SME Focus' },
+      { id: 'mybucks', name: 'MyBucks Banking', shortName: 'MyBucks', icon: 'fa-coins', color: '#e65100', description: 'Digital-first banking' },
+      { id: 'nbs', name: 'NBS Bank', shortName: 'NBS', icon: 'fa-piggy-bank', color: '#2e7d32', description: 'Community banking' },
+      { id: 'first-capital', name: 'First Capital Bank', shortName: 'First Capital', icon: 'fa-chart-line', color: '#b71c1c', description: 'Corporate & personal banking' }
+    ];
 
-  //  HELPERS 
-  function setStorage(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
-  }
-
-  function showToast(message, type) {
-    alert(message); // Simple fallback
-  }
-
-  //  RENDER BANK CARDS 
-  function renderBanks() {
-    const grid = document.getElementById('bankGrid');
-    if (!grid) {
-      console.error('bankGrid element not found');
-      return;
+    function renderBanks() {
+      const grid = document.getElementById('bankGrid');
+      if (!grid) return;
+      grid.innerHTML = BANKS.map(bank => `
+        <div class="bank-card" onclick="selectBank('${bank.id}')">
+          <div class="icon" style="background:${bank.color};">
+            <i class="fas ${bank.icon}"></i>
+          </div>
+          <h3>${bank.name}</h3>
+          <p>${bank.description}</p>
+          ${bank.badge ? `<span class="badge badge-approved">${bank.badge}</span>` : ''}
+          <div style="margin-top:var(--space);">
+            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();selectBank('${bank.id}')">
+              Apply Now <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
     }
 
-    grid.innerHTML = BANKS.map(bank => `
-      <div class="bank-card" onclick="selectBank('${bank.id}')">
-        <div class="icon" style="background:${bank.color};">
-          <i class="fas ${bank.icon}"></i>
-        </div>
-        <h3>${bank.name}</h3>
-        <p>${bank.description}</p>
-        ${bank.badge ? `<span class="badge badge-approved">${bank.badge}</span>` : ''}
-        <div style="margin-top:var(--space);">
-          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();selectBank('${bank.id}')">
-            Apply Now <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-      </div>
-    `).join('');
-  }
+    function selectBank(bankId) {
+      const bank = BANKS.find(b => b.id === bankId);
+      if (!bank) return;
 
-  //  SELECT BANK 
-  function selectBank(bankId) {
-    const bank = BANKS.find(b => b.id === bankId);
-    if (!bank) return;
+      setStorage('selectedBank', bank);
+      removeStorage('wizardDraft');
+      
+      showToast(`Selected ${bank.name}. Starting application...`, 'success');
+      setTimeout(() => {
+        window.location.href = './pages/customer/dashboard.html';
+      }, 800);
+    }
 
-    setStorage('selectedBank', bank);
-    localStorage.removeItem('wizardDraft');
-    
-    alert(`Selected ${bank.name}. Starting application...`);
-    setTimeout(() => {
-      window.location.href = './pages/customer/dashboard.html';
-    }, 800);
-  }
-
-  //  RUN ON PAGE LOAD 
-  document.addEventListener('DOMContentLoaded', renderBanks);
-</script>
+    document.addEventListener('DOMContentLoaded', renderBanks);
+  </script>
 </body>
 </html>
