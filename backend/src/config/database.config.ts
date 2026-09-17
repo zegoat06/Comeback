@@ -8,29 +8,27 @@ import { BankAccount } from '../bank-accounts/entities/bank-account.entity';
 import { AccountType } from '../account_type/entities/account-type.entity';
 import { Payment } from '../paychangu/entities/payment.entity';
 
-export const databaseConfig = (configService: ConfigService): TypeOrmModuleOptions => ({
-  type: 'postgres',
-  host: configService.get<string>('DB_HOST') || 'localhost',
-  port: parseInt(configService.get<string>('DB_PORT') || '5432', 10),
-  username: configService.get<string>('DB_USERNAME') || 'postgres',
-  password: configService.get<string>('DB_PASSWORD') || '',
-  database: configService.get<string>('DB_DATABASE') || 'postgres',
-  entities: [
-    User,
-    Customer,
-    Application,
-    Document,
-    BankAccount,
-    AccountType,
-    Payment,
-  ],
-  synchronize: configService.get<string>('DB_SYNCHRONIZE') === 'true',
-  ssl: {
-    rejectUnauthorized: false,
-  },
-  extra: {
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  },
-});
+export const databaseConfig = (configService: ConfigService): TypeOrmModuleOptions => {
+  const useSSL = configService.get<string>('DB_SSL') === 'true';
+
+  return {
+    type: 'postgres',
+    host: configService.get<string>('DB_HOST') || 'localhost',
+    port: parseInt(configService.get<string>('DB_PORT') || '5432', 10),
+    username: configService.get<string>('DB_USERNAME') || 'postgres',
+    password: configService.get<string>('DB_PASSWORD') || '',
+    database: configService.get<string>('DB_DATABASE') || 'postgres',
+    entities: [
+      User,
+      Customer,
+      Application,
+      Document,
+      BankAccount,
+      AccountType,
+      Payment,
+    ],
+    synchronize: configService.get<string>('DB_SYNCHRONIZE') === 'true',
+    ssl: useSSL ? { rejectUnauthorized: false } : false,
+    extra: useSSL ? { ssl: { rejectUnauthorized: false } } : {},
+  };
+};

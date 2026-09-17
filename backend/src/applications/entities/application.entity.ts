@@ -32,6 +32,24 @@ export class Application {
   status!: ApplicationStatus;
 
   @Column({ nullable: true, type: 'text' })
+  address!: string;
+
+  @Column({ nullable: true, type: 'text' })
+  occupation!: string;
+
+  @Column({ nullable: true, type: 'text' })
+  incomeRange!: string;
+
+  @Column({ nullable: true, type: 'text' })
+  nextOfKin!: string;
+
+  @Column({ nullable: true, type: 'text' })
+  nextOfKinPhone!: string;
+
+  @Column({ nullable: true, type: 'text' })
+  nationalId!: string;
+
+  @Column({ nullable: true, type: 'text' })
   remarks!: string;
 
   @Column({ nullable: true, type: 'text', default: null })

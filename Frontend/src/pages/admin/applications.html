@@ -5,15 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Applications - Admin</title>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" />
-
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <!-- OUR CSS -->
   <link rel="stylesheet" href="../../css/variables.css" />
   <link rel="stylesheet" href="../../css/components.css" />
 
@@ -25,17 +21,14 @@
       flex-wrap: wrap;
       align-items: center;
     }
-
     .filter-bar .input-group {
       margin-bottom: 0;
       flex: 1;
       min-width: 200px;
     }
-
     .filter-bar select {
       max-width: 200px;
     }
-
     .search-input {
       max-width: 300px;
     }
@@ -43,10 +36,8 @@
 </head>
 <body>
 
-  <!-- SIDEBAR -->
   <div id="sidebar-container"></div>
 
-  <!-- HEADER -->
   <header class="app-header">
     <div class="header-left">
       <h1 class="header-title">Applications</h1>
@@ -63,7 +54,6 @@
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
   <main class="main-content">
 
     <div class="card">
@@ -72,19 +62,18 @@
         <span id="total-count" style="color: var(--ink-secondary); font-size: var(--text-sm);">0 total</span>
       </div>
 
-      <!-- Filter Bar -->
       <div class="filter-bar">
         <div class="input-group search-input">
-          <input type="text" id="search-input" placeholder="🔍 Search by name or ID..." />
+          <input type="text" id="search-input" placeholder="🔍 Search by name..." />
         </div>
 
         <div class="input-group">
           <select id="status-filter">
             <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="resubmission">Resubmission</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="RESUBMISSION">Resubmission</option>
           </select>
         </div>
 
@@ -93,7 +82,6 @@
         </button>
       </div>
 
-      <!-- Table -->
       <div class="table-container" id="applications-table">
         <div class="empty-state">
           <span class="empty-icon">⏳</span>
@@ -104,48 +92,64 @@
 
   </main>
 
-  <!-- TOAST CONTAINER -->
   <div id="toast-container"></div>
 
-  <!-- JAVASCRIPT -->
+  <script src="../../js/helpers.js"></script>
   <script src="../../js/api.js"></script>
-  <script src="../../js/components.js"></script>
 
   <script>
-    //  LOAD SIDEBAR 
+    // ==========================================
+    // LOAD SIDEBAR
+    // ==========================================
     fetch('../../pages/shared/sidebar.html')
       .then(res => res.text())
       .then(html => {
         document.getElementById('sidebar-container').innerHTML = html;
         document.querySelector('.sidebar-nav a[data-page="applications"]')?.classList.add('active');
-      });
+      })
+      .catch(err => console.error('Sidebar error:', err));
 
-    //  LOAD ADMIN NAME 
-    const user = getCurrentUser();
+    // ==========================================
+    // LOAD ADMIN NAME
+    // ==========================================
+    const user = getUserData();
     if (user) {
-      document.getElementById('admin-name').textContent = user.name || 'Admin';
-      document.getElementById('admin-avatar').textContent = (user.name || 'A')[0].toUpperCase();
+      const name = user.fullName || user.name || 'Admin';
+      document.getElementById('admin-name').textContent = name;
+      document.getElementById('admin-avatar').textContent = name.charAt(0).toUpperCase();
     }
 
-    //  LOAD APPLICATIONS 
+    // ==========================================
+    // LOAD APPLICATIONS
+    // ==========================================
     async function loadApplications() {
-      const status = document.getElementById('status-filter').value;
+      const statusValue = document.getElementById('status-filter').value;
       const search = document.getElementById('search-input').value.toLowerCase();
+      const container = document.getElementById('applications-table');
 
       try {
-        const apps = await AdminAPI.getApplications(status === 'all' ? null : status);
-        const container = document.getElementById('applications-table');
+        const apps = await api.getAllApplications();
+
+        // Filter by status
+        let filtered = apps;
+        if (statusValue !== 'all') {
+          filtered = apps.filter(a =>
+            (a.status || '').toUpperCase() === statusValue.toUpperCase()
+          );
+        }
 
         // Filter by search
-        const filtered = apps.filter(app => {
-          const name = (app.customerName || '').toLowerCase();
-          const id = (app.id || '').toLowerCase();
-          return name.includes(search) || id.includes(search);
-        });
+        if (search) {
+          filtered = filtered.filter(app => {
+            const name = (app.customer?.user?.fullName || app.customerName || '').toLowerCase();
+            const id = (app.id || '').toLowerCase();
+            return name.includes(search) || id.includes(search);
+          });
+        }
 
         document.getElementById('total-count').textContent = `${filtered.length} total`;
 
-        if (!filtered || filtered.length === 0) {
+        if (filtered.length === 0) {
           container.innerHTML = `
             <div class="empty-state">
               <span class="empty-icon">📭</span>
@@ -162,7 +166,7 @@
               <tr>
                 <th>Customer</th>
                 <th>Account Type</th>
-                <th>ID Number</th>
+                <th>National ID</th>
                 <th>Submitted</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -172,18 +176,22 @@
         `;
 
         filtered.forEach(app => {
-          const statusClass = app.status === 'approved' ? 'badge-approved' :
-                             app.status === 'rejected' ? 'badge-rejected' :
-                             app.status === 'resubmission' ? 'badge-resubmission' : 'badge-pending';
+          const statusUpper = (app.status || 'PENDING').toUpperCase();
+          const statusClass =
+            statusUpper === 'APPROVED' ? 'badge-approved' :
+            statusUpper === 'REJECTED' ? 'badge-rejected' :
+            statusUpper === 'RESUBMISSION' ? 'badge-resubmission' : 'badge-pending';
 
-          const statusLabel = app.status ? app.status.charAt(0).toUpperCase() + app.status.slice(1) : 'Pending';
+          const statusLabel = statusUpper.charAt(0) + statusUpper.slice(1).toLowerCase();
+          const name = app.customer?.user?.fullName || app.customerName || 'Unknown';
+          const date = app.submittedAt || app.createdAt;
 
           html += `
             <tr>
-              <td><strong>${app.customerName || 'Unknown'}</strong></td>
-              <td>${app.accountType || 'Savings'}</td>
-              <td>${app.idNumber || 'N/A'}</td>
-              <td>${app.createdAt ? new Date(app.createdAt).toLocaleDateString() : '-'}</td>
+              <td><strong>${name}</strong></td>
+              <td>${app.accountType || '-'}</td>
+              <td>${app.nationalId || 'N/A'}</td>
+              <td>${date ? new Date(date).toLocaleDateString() : '-'}</td>
               <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>
                 <a href="application-detail.html?id=${app.id}" class="btn btn-sm btn-primary">
@@ -198,10 +206,7 @@
         container.innerHTML = html;
 
       } catch (error) {
-        showToast('Failed to load applications', 'error');
-        console.error(error);
-
-        const container = document.getElementById('applications-table');
+        console.error('Applications load error:', error);
         container.innerHTML = `
           <div class="empty-state">
             <span class="empty-icon">⚠️</span>
@@ -213,142 +218,15 @@
       }
     }
 
-// SHARED MOCK DATA WITH localStorage
-
-function loadApplicationsFromStorage() {
-  const stored = localStorage.getItem('swiftbank_applications');
-  if (stored) {
-    return JSON.parse(stored);
-  }
-  
-  // Default data (only used once)
-  const defaultData = [
-    {
-      id: '1',
-      customerName: 'John Doe',
-      accountType: 'Savings',
-      idNumber: 'ID-123456',
-      createdAt: '2026-07-19T10:30:00',
-      status: 'pending'
-    },
-    {
-      id: '2',
-      customerName: 'Mary Jane',
-      accountType: 'Current',
-      idNumber: 'ID-789012',
-      createdAt: '2026-07-18T14:20:00',
-      status: 'pending'
-    },
-    {
-      id: '3',
-      customerName: 'Peter Mwale',
-      accountType: 'Fixed Deposit',
-      idNumber: 'ID-345678',
-      createdAt: '2026-07-17T09:15:00',
-      status: 'approved'
-    },
-    {
-      id: '4',
-      customerName: 'Sarah Banda',
-      accountType: 'Savings',
-      idNumber: 'ID-901234',
-      createdAt: '2026-07-16T16:45:00',
-      status: 'rejected'
-    },
-    {
-      id: '5',
-      customerName: 'David Kumwenda',
-      accountType: 'Current',
-      idNumber: 'ID-567890',
-      createdAt: '2026-07-15T11:00:00',
-      status: 'resubmission'
-    }
-  ];
-  
-  localStorage.setItem('swiftbank_applications', JSON.stringify(defaultData));
-  return defaultData;
-}
-
-// Load data from localStorage or create default
-window.mockApplications = loadApplicationsFromStorage();
-
-// Save to localStorage whenever data changes
-function saveApplicationsToStorage() {
-  localStorage.setItem('swiftbank_applications', JSON.stringify(window.mockApplications));
-}
-
-// Override API to use shared data
-AdminAPI.getApplications = function(status) {
-  return new Promise((resolve) => {
-    // Reload from storage in case another tab changed it
-    const stored = localStorage.getItem('swiftbank_applications');
-    if (stored) {
-      window.mockApplications = JSON.parse(stored);
-    }
-    
-    let filtered = window.mockApplications;
-    if (status && status !== 'all') {
-      filtered = window.mockApplications.filter(app => app.status === status);
-    }
-    resolve(filtered);
-  });
-};
-
-// Save when creating or deleting applications
-AdminAPI.createApplication = function(data) {
-  return new Promise((resolve) => {
-    const newApp = {
-      id: String(window.mockApplications.length + 1),
-      ...data,
-      createdAt: new Date().toISOString(),
-      status: 'pending'
-    };
-    window.mockApplications.push(newApp);
-    saveApplicationsToStorage();
-    resolve(newApp);
-  });
-};
-
-AdminAPI.deleteApplication = function(id) {
-  return new Promise((resolve) => {
-    const index = window.mockApplications.findIndex(app => app.id === id);
-    if (index !== -1) {
-      window.mockApplications.splice(index, 1);
-      saveApplicationsToStorage();
-    }
-    resolve({ success: true });
-  });
-};
-
-// Override API to use shared data
-AdminAPI.getApplications = function(status) {
-  return new Promise((resolve) => {
-    let filtered = window.mockApplications;
-    if (status && status !== 'all') {
-      filtered = window.mockApplications.filter(app => app.status === status);
-    }
-    resolve(filtered);
-  });
-};
-
-// Override the API call to use mock data
-const originalGetApplications = AdminAPI.getApplications;
-AdminAPI.getApplications = function(status) {
-  return new Promise((resolve) => {
-    let filtered = mockApplications;
-    if (status && status !== 'all') {
-      filtered = mockApplications.filter(app => app.status === status);
-    }
-    resolve(filtered);
-  });
-};
-
-
-    //  EVENT LISTENERS 
+    // ==========================================
+    // EVENT LISTENERS
+    // ==========================================
     document.getElementById('status-filter').addEventListener('change', loadApplications);
     document.getElementById('search-input').addEventListener('input', loadApplications);
 
-    //  INITIAL LOAD 
+    // ==========================================
+    // INITIAL LOAD
+    // ==========================================
     loadApplications();
   </script>
 

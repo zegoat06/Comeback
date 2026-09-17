@@ -3,20 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard - Finovate</title>
-  
-  <!-- Google Fonts -->
+  <title>Admin Dashboard - SwiftBank</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  
-  <!-- FIXED PATHS -->
+
   <link rel="stylesheet" href="../../css/variables.css" />
   <link rel="stylesheet" href="../../css/components.css" />
-  
+
   <style>
     .stats-grid {
       display: grid;
@@ -24,26 +20,18 @@
       gap: var(--space-4);
       margin-bottom: var(--space-6);
     }
-    
     @media (max-width: 768px) {
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
-    
     @media (max-width: 480px) {
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
+      .stats-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  
-  <!-- SIDEBAR -->
+
   <div id="sidebar-container"></div>
-  
-  <!-- HEADER -->
+
   <header class="app-header">
     <div class="header-left">
       <h1 class="header-title">Dashboard</h1>
@@ -59,11 +47,9 @@
       </button>
     </div>
   </header>
-  
-  <!-- MAIN CONTENT -->
+
   <main class="main-content">
-    
-    <!-- Stats Grid -->
+
     <div class="stats-grid" id="stats-grid">
       <div class="stat-card">
         <span class="stat-icon">📋</span>
@@ -86,8 +72,7 @@
         <div class="stat-label">Total Users</div>
       </div>
     </div>
-    
-    <!-- Recent Applications -->
+
     <div class="card recent-applications">
       <div class="card-header">
         <h2 class="card-title">Recent Applications</h2>
@@ -97,158 +82,170 @@
       </div>
       <div class="table-container" id="recent-table">
         <div class="empty-state">
-          <span class="empty-icon">📭</span>
-          <h3>No applications yet</h3>
-          <p>Applications will appear here once customers submit them.</p>
+          <span class="empty-icon">⏳</span>
+          <h3>Loading...</h3>
         </div>
       </div>
     </div>
-    
+
   </main>
-  
-  <!-- TOAST CONTAINER -->
+
   <div id="toast-container"></div>
-  
-  <!-- JAVASCRIPT - FIXED PATHS -->
+
+  <script src="../../js/helpers.js"></script>
   <script src="../../js/api.js"></script>
-  <script src="../../js/components.js"></script>
-  
+
   <script>
-    //  LOAD SIDEBAR 
+    // ==========================
+    // LOAD SIDEBAR
+    // ==========================
     fetch('../../pages/shared/sidebar.html')
       .then(res => res.text())
       .then(html => {
         document.getElementById('sidebar-container').innerHTML = html;
         document.querySelector('.sidebar-nav a[data-page="dashboard"]')?.classList.add('active');
       })
-      .catch(err => {
-        console.error('Error loading sidebar:', err);
-      });
-    
-    //  LOAD ADMIN NAME 
-    const user = getCurrentUser();
+      .catch(err => console.error('Sidebar error:', err));
+
+    // ==========================
+    // LOAD ADMIN NAME
+    // ==========================
+    const user = getUserData();
     if (user) {
-      document.getElementById('admin-name').textContent = user.name || 'Admin';
-      document.getElementById('admin-avatar').textContent = (user.name || 'A')[0].toUpperCase();
-    }
-    
-    //  LOAD STATS 
-function loadStats() {
-  try {
-    // Get data from localStorage
-const stored = localStorage.getItem('applications');
-    let apps = [];
-
-    if (stored) {
-      apps = JSON.parse(stored);
-      console.log('Dashboard: Loaded apps from localStorage:', apps);
-    } else {
-      console.warn('Dashboard: No data in localStorage, using fallback.');
-      apps = [];
+      const name = user.fullName || user.name || 'Admin';
+      document.getElementById('admin-name').textContent = name;
+      document.getElementById('admin-avatar').textContent = name.charAt(0).toUpperCase();
     }
 
-    // Calculate stats
-    const pending = apps.filter(a => a.status === 'pending' || a.status === 'resubmission').length;
-    const approved = apps.filter(a => a.status === 'approved').length;
-    const rejected = apps.filter(a => a.status === 'rejected').length;
-    const totalUsers = apps.length;
+    // ==========================
+    // LOAD STATS FROM BACKEND
+    // ==========================
+    async function loadStats() {
+      try {
+        const [apps, users] = await Promise.all([
+          api.getAllApplications(),
+          api.getAllUsers(),
+        ]);
 
-    // Update dashboard
-    document.getElementById('stat-pending').textContent = pending;
-    document.getElementById('stat-approved').textContent = approved;
-    document.getElementById('stat-rejected').textContent = rejected;
-    document.getElementById('stat-total-users').textContent = totalUsers;
+        const pending = apps.filter(a =>
+          a.status === 'PENDING' || a.status === 'pending' ||
+          a.status === 'RESUBMISSION' || a.status === 'resubmission'
+        ).length;
 
-    console.log('Dashboard updated: Pending=' + pending + ', Approved=' + approved + ', Rejected=' + rejected);
+        const approved = apps.filter(a =>
+          a.status === 'APPROVED' || a.status === 'approved'
+        ).length;
 
-  } catch (error) {
-    console.error('Dashboard error:', error);
-    document.getElementById('stat-pending').textContent = 0;
-    document.getElementById('stat-approved').textContent = 0;
-    document.getElementById('stat-rejected').textContent = 0;
-    document.getElementById('stat-total-users').textContent = 0;
-  }
-}    
-    //  LOAD RECENT APPLICATIONS 
-function loadRecentApplications() {
-  try {
-    const stored = localStorage.getItem('applications');
-    let apps = [];
+        const rejected = apps.filter(a =>
+          a.status === 'REJECTED' || a.status === 'rejected'
+        ).length;
 
-    if (stored) {
-      apps = JSON.parse(stored);
+        document.getElementById('stat-pending').textContent = pending;
+        document.getElementById('stat-approved').textContent = approved;
+        document.getElementById('stat-rejected').textContent = rejected;
+        document.getElementById('stat-total-users').textContent = users.length;
+
+      } catch (error) {
+        console.error('Stats error:', error);
+      }
     }
 
-    const container = document.getElementById('recent-table');
-    
-    // Only show pending + resubmission
-    const pendingApps = apps.filter(a => a.status === 'pending' || a.status === 'resubmission');
+    // ==========================
+    // LOAD RECENT APPLICATIONS
+    // ==========================
+    async function loadRecentApplications() {
+      const container = document.getElementById('recent-table');
 
-    if (pendingApps.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <span class="empty-icon">✅</span>
-          <h3>All caught up!</h3>
-          <p>No pending applications to review.</p>
-        </div>
-      `;
-      return;
+      try {
+        const apps = await api.getAllApplications();
+
+        const pendingApps = apps.filter(a =>
+          a.status === 'PENDING' || a.status === 'pending' ||
+          a.status === 'RESUBMISSION' || a.status === 'resubmission'
+        );
+
+        if (pendingApps.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <span class="empty-icon">✅</span>
+              <h3>All caught up!</h3>
+              <p>No pending applications to review.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const recent = pendingApps.slice(0, 5);
+
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Account Type</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        recent.forEach(app => {
+          const name = app.customer?.user?.fullName || app.customerName || 'Unknown';
+          const date = app.submittedAt || app.createdAt;
+          const type = app.accountType || 'Savings';
+
+          html += `
+            <tr>
+              <td><strong>${name}</strong></td>
+              <td>${type}</td>
+              <td>${date ? new Date(date).toLocaleDateString() : '-'}</td>
+              <td><span class="badge badge-pending">Pending</span></td>
+              <td>
+                <a href="application-detail.html?id=${app.id}" class="btn btn-sm btn-primary">
+                  Review
+                </a>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+
+      } catch (error) {
+        console.error('Recent apps error:', error);
+        container.innerHTML = `
+          <div class="empty-state">
+            <span class="empty-icon">⚠️</span>
+            <h3>Could not load applications</h3>
+            <p>Check if backend is running.</p>
+            <button class="btn btn-primary" onclick="loadRecentApplications()">Retry</button>
+          </div>
+        `;
+      }
     }
 
-    const recent = pendingApps.slice(0, 5);
-
-    let html = `
-      <table>
-        <thead>
-          <tr>
-            <th>Customer</th>
-            <th>Account Type</th>
-            <th>Submitted</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
-
-    recent.forEach(app => {
-      const statusLabel = app.status === 'resubmission' ? 'Resubmission' : 'Pending';
-      html += `
-        <tr>
-          <td><strong>${app.customerName || 'Unknown'}</strong></td>
-          <td>${app.accountType || 'Savings'}</td>
-          <td>${app.createdAt ? new Date(app.createdAt).toLocaleDateString() : '-'}</td>
-          <td><span class="badge badge-pending">${statusLabel}</span></td>
-          <td>
-            <a href="application-detail.html?id=${app.id}" class="btn btn-sm btn-primary">Review</a>
-          </td>
-        </tr>
-      `;
+    // ==========================
+    // AUTO-REFRESH
+    // ==========================
+    window.addEventListener('focus', () => {
+      loadStats();
+      loadRecentApplications();
     });
 
-    html += `</tbody></table>`;
-    container.innerHTML = html;
+    setInterval(() => {
+      loadStats();
+      loadRecentApplications();
+    }, 15000);
 
-  } catch (error) {
-    console.error('Error loading recent applications:', error);
-  }
-}
-
-// Auto-refresh dashboard when coming back to the page
-window.addEventListener('focus', function() {
-  loadStats();
-  loadRecentApplications();
-});
-
-// Also refresh every 15 seconds (optional — makes it feel "real-time")
-setInterval(function() {
-  loadStats();
-  loadRecentApplications();
-}, 15000);
-
-//  LOAD ALL DATA 
+    // ==========================
+    // INITIAL LOAD
+    // ==========================
     loadStats();
     loadRecentApplications();
   </script>
+
 </body>
 </html>

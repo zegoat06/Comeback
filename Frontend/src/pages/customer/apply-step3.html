@@ -6,15 +6,136 @@
   <title>Step 3 - Upload ID - SWIFTb</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f7fa;
+      color: #1a1f36;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    .page-header {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 0; border-bottom: 1px solid #e5e7eb; margin-bottom: 24px;
+    }
+    .page-header a { color: #0A1F44; font-size: 1.5rem; text-decoration: none; }
+    .page-header h1 { font-size: 1.5rem; color: #0A1F44; }
+    .stepper { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .step {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      flex: 1; min-width: 100px;
+    }
+    .step .circle {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #e5e7eb; color: #6b7280;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600;
+    }
+    .step.active .circle { background: #0A1F44; color: white; }
+    .step.completed .circle { background: #10b981; color: white; }
+    .step .label { font-size: 0.75rem; color: #6b7280; text-align: center; }
+    .step.active .label { color: #0A1F44; font-weight: 600; }
+    .step.completed .label { color: #10b981; font-weight: 600; }
+    .card {
+      background: white; border-radius: 10px; padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 24px;
+    }
+    .card h2 { color: #0A1F44; margin-bottom: 8px; }
+    .card > p { color: #6b7280; font-size: 0.9rem; margin-bottom: 20px; }
+    .upload-zone {
+      border: 2px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 32px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f9fafb;
+    }
+    .upload-zone:hover {
+      border-color: #D4AF37;
+      background: rgba(212, 175, 55, 0.05);
+    }
+    .upload-zone.dragover {
+      border-color: #D4AF37;
+      background: rgba(212, 175, 55, 0.1);
+    }
+    .upload-zone .icon {
+      font-size: 2.5rem;
+      color: #D4AF37;
+      margin-bottom: 12px;
+    }
+    .upload-zone .text {
+      color: #4b5563;
+      font-size: 0.95rem;
+    }
+    .upload-preview {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px; background: #f9fafb; border-radius: 8px;
+      margin-top: 16px;
+    }
+    .upload-preview img {
+      width: 80px; height: 60px; object-fit: cover;
+      border-radius: 6px; border: 1px solid #e5e7eb;
+    }
+    .file-info { flex: 1; }
+    .file-name { font-weight: 500; font-size: 0.9rem; }
+    .file-size { font-size: 0.8rem; color: #6b7280; }
+    .progress-bar {
+      height: 6px; background: #e5e7eb; border-radius: 3px;
+      margin-top: 12px; overflow: hidden; display: none;
+    }
+    .progress-bar.active { display: block; }
+    .progress-fill {
+      height: 100%; background: #D4AF37; width: 0%;
+      transition: width 0.2s;
+    }
+    .input-group { margin-bottom: 16px; margin-top: 16px; }
+    .input-group label {
+      display: block; font-weight: 500; font-size: 0.85rem;
+      color: #1a1f36; margin-bottom: 6px;
+    }
+    .input-group input {
+      width: 100%; padding: 10px 14px;
+      border: 1px solid #e5e7eb; border-radius: 6px;
+      font-size: 0.9rem; font-family: 'Inter', sans-serif;
+    }
+    .input-group input:focus {
+      outline: none; border-color: #0A1F44;
+      box-shadow: 0 0 0 3px rgba(10,31,68,0.1);
+    }
+    .error-text {
+      color: #dc2626; font-size: 0.8rem;
+      margin-top: 4px; display: none;
+    }
+    .error-text.show { display: block; }
+    .btn-row {
+      display: flex; justify-content: space-between; margin-top: 24px; gap: 12px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px 24px; border-radius: 6px;
+      font-weight: 600; font-size: 0.9rem;
+      cursor: pointer; border: none; text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-gold { background: #D4AF37; color: #0A1F44; }
+    .btn-gold:hover { background: #c5a02e; }
+    .btn-gold:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-secondary { background: #0A1F44; color: white; }
+    .btn-secondary:hover { background: #16407E; }
+    .btn-danger { background: #dc2626; color: white; padding: 6px 12px; font-size: 0.8rem; }
+    .btn-danger:hover { background: #b91c1c; }
+    .hidden { display: none; }
+    .mt-2 { margin-top: 16px; }
+  </style>
 </head>
 <body>
-  <div class="container" style="max-width:800px;">
-    <div style="display:flex;align-items:center;gap:var(--space);padding:var(--space) 0;border-bottom:1px solid var(--gray-200);margin-bottom:var(--space);">
-      <a href="./apply-step2.html" style="font-size:1.5rem;color:var(--primary);">
-        <i class="fas fa-arrow-left"></i>
-      </a>
-      <h1 style="margin:0;">Apply for Account</h1>
+  <div class="container">
+    <div class="page-header">
+      <a href="./apply-step2.html"><i class="fas fa-arrow-left"></i></a>
+      <h1>Apply for Account</h1>
     </div>
 
     <div class="stepper">
@@ -26,7 +147,7 @@
 
     <div class="card">
       <h2>Upload National ID</h2>
-      <p class="text-muted">Upload a clear image of your National ID. Accepted: JPG, PNG, PDF (max 5MB).</p>
+      <p>Upload a clear image of your National ID. Accepted: JPG, PNG, PDF (max 5MB).</p>
 
       <div id="uploadZone" class="upload-zone" onclick="document.getElementById('fileInput').click()">
         <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
@@ -34,21 +155,21 @@
         <input type="file" id="fileInput" accept="image/*,.pdf" style="display:none;" onchange="handleFile(event)" />
       </div>
 
-      <div id="previewContainer" class="hidden mt-2">
+      <div id="previewContainer" class="hidden">
         <div class="upload-preview">
           <img id="previewImage" src="" alt="ID Preview" />
           <div class="file-info">
             <div class="file-name" id="fileName">file.pdf</div>
             <div class="file-size" id="fileSize">0 MB</div>
           </div>
-          <button class="btn btn-danger btn-sm" onclick="removeFile()">Remove</button>
+          <button class="btn btn-danger" onclick="removeFile()">Remove</button>
         </div>
         <div class="progress-bar" id="progressBar">
           <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
 
-      <div class="input-group mt-2">
+      <div class="input-group">
         <label>National ID Number *</label>
         <input type="text" id="idNumber" placeholder="Enter your ID number" />
         <div class="error-text" id="idError">Please enter a valid ID number</div>
@@ -56,7 +177,7 @@
 
       <div id="uploadStatus" class="mt-2"></div>
 
-      <div style="display:flex;justify-content:space-between;margin-top:var(--space);">
+      <div class="btn-row">
         <a href="./apply-step2.html" class="btn btn-secondary">
           <i class="fas fa-arrow-left"></i> Back
         </a>
@@ -67,36 +188,33 @@
     </div>
   </div>
 
-  <script src="/js/app.js"></script>
   <script>
     let selectedFile = null;
     let isUploading = false;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      wizard.load();
-      const data = wizard.data.nationalId;
-      
-      if (data.number) {
-        document.getElementById('idNumber').value = data.number;
-      }
-      
-      if (data.fileUrl && data.uploaded) {
-        document.getElementById('previewImage').src = data.fileUrl;
+    window.addEventListener('DOMContentLoaded', () => {
+      // Load saved ID number
+      const savedId = localStorage.getItem('wizard_idNumber');
+      if (savedId) document.getElementById('idNumber').value = savedId;
+
+      // Check if already uploaded
+      const uploaded = localStorage.getItem('wizard_idUploaded') === 'true';
+      if (uploaded) {
         document.getElementById('fileName').textContent = 'ID uploaded successfully ✅';
         document.getElementById('previewContainer').classList.remove('hidden');
-        document.getElementById('uploadStatus').innerHTML = 
-          '<span style="color:var(--success);font-weight:500;">✅ ID already uploaded</span>';
+        document.getElementById('uploadStatus').innerHTML =
+          '<span style="color:#10b981;font-weight:500;">✅ ID already uploaded</span>';
         document.getElementById('uploadBtn').innerHTML = 'Continue <i class="fas fa-arrow-right"></i>';
       }
-      
+
       setupDragDrop();
     });
 
     function setupDragDrop() {
       const zone = document.getElementById('uploadZone');
-      zone.addEventListener('dragover', e => { 
-        e.preventDefault(); 
-        zone.classList.add('dragover'); 
+      zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.classList.add('dragover');
       });
       zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
       zone.addEventListener('drop', e => {
@@ -116,19 +234,18 @@
 
     function processFile(file) {
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
-      
+
       if (!validTypes.includes(file.type)) {
-        showToast('Please upload JPG, PNG, or PDF files only.', 'error');
+        alert('Please upload JPG, PNG, or PDF files only.');
         return;
       }
-      
+
       if (file.size > 5 * 1024 * 1024) {
-        showToast('File size must be less than 5MB.', 'error');
+        alert('File size must be less than 5MB.');
         return;
       }
 
       selectedFile = file;
-      
       document.getElementById('uploadStatus').innerHTML = '';
       document.getElementById('uploadBtn').innerHTML = 'Upload & Continue <i class="fas fa-arrow-right"></i>';
 
@@ -139,17 +256,15 @@
         document.getElementById('fileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
         document.getElementById('previewContainer').classList.remove('hidden');
       };
-      
+
       if (file.type === 'application/pdf') {
-        document.getElementById('previewImage').src = 'https://via.placeholder.com/100x60?text=PDF';
+        document.getElementById('previewImage').src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="60"%3E%3Crect width="80" height="60" fill="%23f0f0f0"/%3E%3Ctext x="15" y="35" font-family="Arial" font-size="14" fill="%23999"%3EPDF%3C/text%3E%3C/svg%3E';
         document.getElementById('previewContainer').classList.remove('hidden');
         document.getElementById('fileName').textContent = file.name;
         document.getElementById('fileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
       } else {
         reader.readAsDataURL(file);
       }
-      
-      showToast('File selected: ' + file.name, 'info');
     }
 
     function removeFile() {
@@ -158,32 +273,32 @@
       document.getElementById('fileInput').value = '';
       document.getElementById('uploadStatus').innerHTML = '';
       document.getElementById('uploadBtn').innerHTML = 'Upload & Continue <i class="fas fa-arrow-right"></i>';
-      wizard.data.nationalId.uploaded = false;
-      wizard.data.nationalId.fileUrl = null;
-      wizard.save();
+      localStorage.removeItem('wizard_idUploaded');
     }
 
     function uploadAndNext() {
-      if (wizard.data.nationalId.uploaded && !selectedFile) {
-        window.location.href = './apply-step4.html';
-        return;
-      }
-
       const idNumber = document.getElementById('idNumber').value.trim();
+
       if (!idNumber) {
         document.getElementById('idError').classList.add('show');
         return;
       }
       document.getElementById('idError').classList.remove('show');
 
+      // If already uploaded, just continue
+      if (localStorage.getItem('wizard_idUploaded') === 'true' && !selectedFile) {
+        window.location.href = './apply-step4.html';
+        return;
+      }
+
       if (!selectedFile) {
-        showToast('Please select a file to upload.', 'error');
+        alert('Please select a file to upload.');
         return;
       }
 
       if (isUploading) return;
       isUploading = true;
-      
+
       const btn = document.getElementById('uploadBtn');
       btn.disabled = true;
       btn.innerHTML = 'Uploading... <i class="fas fa-spinner fa-spin"></i>';
@@ -203,24 +318,23 @@
       setTimeout(() => {
         clearInterval(interval);
         progressFill.style.width = '100%';
-        
-        const fileUrl = URL.createObjectURL(selectedFile);
-        wizard.setNationalId(idNumber, selectedFile, fileUrl);
-        wizard.setNationalIdUploaded('doc_' + Date.now());
-        
-        document.getElementById('uploadStatus').innerHTML = 
-          '<span style="color:var(--success);font-weight:500;">✅ Upload successful!</span>';
-        
+
+        // Save to localStorage
+        localStorage.setItem('wizard_idNumber', idNumber);
+        localStorage.setItem('wizard_idUploaded', 'true');
+        localStorage.setItem('wizard_idFileName', selectedFile.name);
+
+        document.getElementById('uploadStatus').innerHTML =
+          '<span style="color:#10b981;font-weight:500;">✅ Upload successful!</span>';
+
         btn.innerHTML = 'Continue <i class="fas fa-arrow-right"></i>';
         btn.disabled = false;
         isUploading = false;
-        
-        showToast('ID uploaded successfully!', 'success');
-        
+
         setTimeout(() => {
           window.location.href = './apply-step4.html';
         }, 800);
-        
+
       }, 2000);
     }
 

@@ -53,10 +53,16 @@ export class ApplicationsService {
     }
 
     const application = this.applicationRepository.create({
-      customer,
-      accountType: dto.accountType,
-      status: ApplicationStatus.PENDING,
-    });
+  customer,
+  accountType: dto.accountType,
+  status: ApplicationStatus.PENDING,
+  address: dto.address,
+  occupation: dto.occupation,
+  incomeRange: dto.incomeRange || '',
+  nextOfKin: dto.nextOfKin || '',
+  nextOfKinPhone: dto.nextOfKinPhone || '',
+  nationalId: dto.nationalId,
+});
 
     return await this.applicationRepository.save(application);
   }
