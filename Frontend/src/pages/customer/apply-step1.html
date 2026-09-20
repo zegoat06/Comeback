@@ -6,63 +6,119 @@
   <title>Step 1 - Account Type - SWIFTb</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="/css/style.css" />
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f7fa;
+      color: #1a1f36;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    .page-header {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 0; border-bottom: 1px solid #e5e7eb; margin-bottom: 24px;
+    }
+    .page-header a { color: #0A1F44; font-size: 1.5rem; text-decoration: none; }
+    .page-header h1 { font-size: 1.5rem; color: #0A1F44; }
     .bank-banner {
-      background: var(--gray-50);
-      border: 2px solid var(--accent);
-      border-radius: var(--radius);
-      padding: var(--space);
+      background: #f9fafb;
+      border: 2px solid #D4AF37;
+      border-radius: 10px;
+      padding: 16px;
       display: flex;
       align-items: center;
-      gap: var(--space);
-      margin-bottom: var(--space);
+      gap: 16px;
+      margin-bottom: 24px;
     }
     .bank-banner .icon {
       font-size: 1.8rem;
-      width: 50px;
-      height: 50px;
+      width: 50px; height: 50px;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--accent);
-      color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      background: #D4AF37;
+      color: white;
+    }
+    .bank-banner .bank-name { font-weight: 600; }
+    .bank-banner .bank-sub { font-size: 0.8rem; color: #6b7280; }
+    .stepper { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .step {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      flex: 1; min-width: 100px;
+    }
+    .step .circle {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #e5e7eb; color: #6b7280;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600;
+    }
+    .step.active .circle { background: #0A1F44; color: white; }
+    .step .label { font-size: 0.75rem; color: #6b7280; text-align: center; }
+    .step.active .label { color: #0A1F44; font-weight: 600; }
+    .card {
+      background: white; border-radius: 10px; padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 24px;
+    }
+    .card h2 { color: #0A1F44; margin-bottom: 8px; }
+    .card p { color: #6b7280; font-size: 0.9rem; }
+    .account-options {
+      display: flex; gap: 16px; flex-wrap: wrap; margin: 24px 0;
     }
     .account-option {
+      flex: 1; min-width: 200px;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 20px;
       cursor: pointer;
-      flex: 1;
-      min-width: 180px;
       transition: all 0.2s;
     }
-    .account-option:hover { border-color: var(--accent); }
+    .account-option:hover { border-color: #D4AF37; }
     .account-option.selected {
-      border-color: var(--accent);
+      border-color: #D4AF37;
       background: rgba(212, 175, 55, 0.05);
     }
+    .account-option h3 { color: #0A1F44; margin-bottom: 8px; font-size: 1rem; }
+    .account-option p { font-size: 0.8rem; color: #6b7280; }
+    .selected-display {
+      margin-top: 16px; padding: 12px;
+      background: #f9fafb; border-radius: 8px;
+      display: none;
+    }
+    .selected-display.visible { display: block; }
+    .btn-row {
+      display: flex; justify-content: space-between; margin-top: 24px; gap: 12px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px 24px; border-radius: 6px;
+      font-weight: 600; font-size: 0.9rem;
+      cursor: pointer; border: none; text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-gold { background: #D4AF37; color: #0A1F44; }
+    .btn-gold:hover:not(:disabled) { background: #c5a02e; }
+    .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary { background: #0A1F44; color: white; }
+    .btn-secondary:hover { background: #16407E; }
   </style>
 </head>
 <body>
-  <div class="container" style="max-width:800px;">
-    <!-- Header -->
-    <div style="display:flex;align-items:center;gap:var(--space);padding:var(--space) 0;border-bottom:1px solid var(--gray-200);margin-bottom:var(--space);">
-      <a href="./dashboard.html" style="font-size:1.5rem;color:var(--primary);">
-        <i class="fas fa-arrow-left"></i>
-      </a>
-      <h1 style="margin:0;">Apply for Account</h1>
+  <div class="container">
+    <div class="page-header">
+      <a href="./dashboard.html"><i class="fas fa-arrow-left"></i></a>
+      <h1>Apply for Account</h1>
     </div>
 
-    <!-- Bank Banner -->
-    <div class="bank-banner" id="bankBanner">
+    <div class="bank-banner">
       <div class="icon"><i class="fas fa-university"></i></div>
       <div>
-        <div style="font-weight:600;" id="bankName">No bank selected</div>
-        <div style="font-size:0.8rem;color:var(--gray-500);">You are applying with this bank</div>
+        <div class="bank-name">SwiftBank</div>
+        <div class="bank-sub">You are applying with this bank</div>
       </div>
-      <a href="../../index.html" style="margin-left:auto;font-size:0.875rem;">Change</a>
     </div>
 
-    <!-- Stepper -->
     <div class="stepper">
       <div class="step active"><div class="circle">1</div><span class="label">Account Type</span></div>
       <div class="step"><div class="circle">2</div><span class="label">Personal Details</span></div>
@@ -70,31 +126,28 @@
       <div class="step"><div class="circle">4</div><span class="label">Review & Submit</span></div>
     </div>
 
-    <!-- Content -->
     <div class="card">
       <h2>Select Account Type</h2>
-      <p class="text-muted">Choose the account that best fits your needs.</p>
+      <p>Choose the account that best fits your needs.</p>
 
-      <div class="flex gap-2 mt-2 flex-wrap" id="accountOptions">
-        <div class="card account-option" data-id="1" data-name="Savings" onclick="selectAccount(this)">
-          <h3>Savings Account</h3>
-          <p style="font-size:0.8rem;">Build savings with interest. Min balance: 10,000 MWK</p>
-        </div>
-        <div class="card account-option" data-id="2" data-name="Current" onclick="selectAccount(this)">
-          <h3>Current Account</h3>
-          <p style="font-size:0.8rem;">Everyday banking with cheque book access.</p>
-        </div>
-        <div class="card account-option" data-id="3" data-name="Fixed Deposit" onclick="selectAccount(this)">
-          <h3>Fixed Deposit</h3>
-          <p style="font-size:0.8rem;">Higher interest for long-term savings.</p>
-        </div>
-      </div>
+      <div class="account-option" data-id="1" data-name="SAVINGS" onclick="selectAccount(this)">
+  <h3>Savings Account</h3>
+  <p>Build savings with interest. Min balance: 10,000 MWK</p>
+</div>
+<div class="account-option" data-id="2" data-name="CHECKING" onclick="selectAccount(this)">
+  <h3>Current / Checking Account</h3>
+  <p>Everyday banking with cheque book access.</p>
+</div>
+<div class="account-option" data-id="3" data-name="CREDIT" onclick="selectAccount(this)">
+  <h3>Credit Account</h3>
+  <p>For credit-based transactions.</p>
+</div>
 
-      <div id="selectedDisplay" class="mt-2 hidden">
+      <div class="selected-display" id="selectedDisplay">
         <p><strong>Selected:</strong> <span id="selectedName"></span></p>
       </div>
 
-      <div style="display:flex;justify-content:space-between;margin-top:var(--space);">
+      <div class="btn-row">
         <a href="./dashboard.html" class="btn btn-secondary">Cancel</a>
         <button id="nextBtn" class="btn btn-gold" disabled onclick="goNext()">
           Next <i class="fas fa-arrow-right"></i>
@@ -103,27 +156,9 @@
     </div>
   </div>
 
-  <script src="/js/app.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const bank = getSelectedBank();
-      if (!bank) {
-        showToast('Please select a bank first', 'warning');
-        setTimeout(() => window.location.href = '../../index.html', 1000);
-        return;
-      }
-      document.getElementById('bankName').textContent = bank.name;
-      document.querySelector('.bank-banner .icon i').className = `fas ${bank.icon}`;
-
-      wizard.load();
-      if (wizard.data.accountTypeId) {
-        document.querySelectorAll('.account-option').forEach(el => {
-          if (el.dataset.id == wizard.data.accountTypeId) {
-            selectAccount(el);
-          }
-        });
-      }
-    });
+    let selectedAccountId = null;
+    let selectedAccountName = null;
 
     function selectAccount(el) {
       document.querySelectorAll('.account-option').forEach(opt => {
@@ -131,17 +166,18 @@
       });
       el.classList.add('selected');
 
-      const id = parseInt(el.dataset.id);
-      const name = el.dataset.name;
-      wizard.setAccountType(id, name);
+      selectedAccountId = el.dataset.id;
+      selectedAccountName = el.dataset.name;
 
-      document.getElementById('selectedName').textContent = name;
-      document.getElementById('selectedDisplay').classList.remove('hidden');
+      document.getElementById('selectedName').textContent = selectedAccountName;
+      document.getElementById('selectedDisplay').classList.add('visible');
       document.getElementById('nextBtn').disabled = false;
     }
 
     function goNext() {
-      if (wizard.data.accountTypeId) {
+      if (selectedAccountId) {
+        localStorage.setItem('wizard_accountTypeId', selectedAccountId);
+        localStorage.setItem('wizard_accountType', selectedAccountName);
         window.location.href = './apply-step2.html';
       }
     }

@@ -6,50 +6,58 @@
   <title>Dashboard - SWIFTb</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="../../css/style.css" />
   <style>
+    body { font-family: 'Inter', sans-serif; padding: 20px; background: #f5f7fa; }
     .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--space) 0;
-      border-bottom: 1px solid var(--gray-200);
-      margin-bottom: var(--space);
-      flex-wrap: wrap;
-      gap: var(--space);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 0; border-bottom: 1px solid #e5e7eb; margin-bottom: 24px;
+      flex-wrap: wrap; gap: 16px;
     }
     .header .logo {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary);
+      font-family: 'Poppins', sans-serif; font-size: 1.5rem;
+      font-weight: 700; color: #0A1F44;
     }
-    .header .logo span { color: var(--accent); }
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: var(--space);
-      flex-wrap: wrap;
-    }
+    .header .logo span { color: #D4AF37; }
+    .user-info { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     .user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #0A1F44; color: white;
+      display: flex; align-items: center; justify-content: center;
       font-weight: 600;
     }
-    .status-icon { font-size: 2.5rem; color: var(--accent); }
-    .quick-actions { display: flex; gap: var(--space); flex-wrap: wrap; }
-    .help-box {
-      background: var(--gray-50);
-      border-radius: var(--radius);
-      padding: var(--space);
-      margin-top: var(--space);
+    .card {
+      background: white; border-radius: 10px; padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 24px;
     }
+    .card-header { font-weight: 600; margin-bottom: 8px; color: #0A1F44; }
+    .status-icon { font-size: 2.5rem; color: #D4AF37; }
+    .quick-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+    .help-box {
+      background: #f9fafb; border-radius: 10px; padding: 20px; margin-top: 24px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; border-radius: 6px; text-decoration: none;
+      font-weight: 500; font-size: 0.9rem; cursor: pointer; border: none;
+      transition: all 0.2s;
+    }
+    .btn-gold { background: #D4AF37; color: #0A1F44; }
+    .btn-gold:hover { background: #c5a02e; }
+    .btn-secondary { background: #0A1F44; color: white; }
+    .btn-secondary:hover { background: #16407E; }
+    .badge {
+      display: inline-block; padding: 4px 12px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .badge-pending { background: #FEF3C7; color: #92400E; }
+    .badge-approved { background: #D1FAE5; color: #065F46; }
+    .badge-rejected { background: #FEE2E2; color: #991B1B; }
+    .badge-resubmission { background: #FEF3C7; color: #92400E; border: 1px solid #92400E; }
+    .text-muted { color: #6b7280; font-size: 0.9rem; }
+    .text-danger { color: #dc2626; }
+    h3 { color: #0A1F44; margin-top: 24px; margin-bottom: 12px; }
+    h4 { color: #0A1F44; margin-bottom: 8px; }
   </style>
 </head>
 <body>
@@ -71,7 +79,7 @@
 
     <!-- Status Card -->
     <div class="card">
-      <div style="display:flex;align-items:center;gap:var(--space);">
+      <div style="display:flex;align-items:center;gap:16px;">
         <div class="status-icon"><i class="fas fa-file-invoice"></i></div>
         <div style="flex:1;">
           <div class="card-header">Your Application Status</div>
@@ -83,9 +91,9 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="mt-3">
+    <div>
       <h3>Quick Actions</h3>
-      <div class="quick-actions mt-2">
+      <div class="quick-actions">
         <a href="./apply-step1.html" class="btn btn-gold">
           <i class="fas fa-plus"></i> Start Application
         </a>
@@ -100,46 +108,42 @@
 
     <!-- Help -->
     <div class="help-box">
-      <h4><i class="fas fa-info-circle" style="color:var(--accent);"></i> Need Help?</h4>
-      <p style="font-size:0.875rem;color:var(--gray-500);">
+      <h4><i class="fas fa-info-circle" style="color:#D4AF37;"></i> Need Help?</h4>
+      <p class="text-muted">
         Contact your selected bank's customer support for assistance with your application.
       </p>
     </div>
   </div>
 
-  <script src="/js/app.js"></script>
-  <script src="/js/api.js"></script>
+  <script src="../../js/api.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       const token = sessionStorage.getItem('token');
-      const user = getUserData();
-      
+      const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+
       if (!token || !user) {
-        showToast('Please login first', 'warning');
+        alert('Please login first');
         setTimeout(() => {
-          window.location.href = '../../loginPage.html';
+          window.location.href = '../auth/loginPage.html';
         }, 1000);
         return;
       }
 
+      // Show user name + avatar
       if (user && user.fullName) {
         document.getElementById('userName').textContent = user.fullName;
         document.getElementById('userAvatar').textContent = user.fullName.charAt(0).toUpperCase();
       }
 
-      loadApplicationStatus();
-    });
-
-    async function loadApplicationStatus() {
+      // Load application status
       const content = document.getElementById('statusContent');
-      
       try {
         const applications = await api.getMyApplications();
-        
+
         if (!applications || applications.length === 0) {
           content.innerHTML = `
             <p class="text-muted">You haven't started an application yet.</p>
-            <a href="./apply-step1.html" class="btn btn-gold btn-sm mt-2">
+            <a href="./apply-step1.html" class="btn btn-gold" style="margin-top:10px;">
               Start Your Application
             </a>
           `;
@@ -149,43 +153,45 @@
         const app = applications[0];
         const statusMap = {
           PENDING: 'Pending Review',
+          pending: 'Pending Review',
           APPROVED: 'Approved ✅',
+          approved: 'Approved ✅',
           REJECTED: 'Rejected ❌',
-          RESUBMISSION: 'Resubmission Requested'
+          rejected: 'Rejected ❌',
+          RESUBMISSION: 'Resubmission Requested',
+          resubmission: 'Resubmission Requested'
         };
         const badgeClass = {
-          PENDING: 'badge-pending',
-          APPROVED: 'badge-approved',
-          REJECTED: 'badge-rejected',
-          RESUBMISSION: 'badge-resubmission'
+          PENDING: 'badge-pending', pending: 'badge-pending',
+          APPROVED: 'badge-approved', approved: 'badge-approved',
+          REJECTED: 'badge-rejected', rejected: 'badge-rejected',
+          RESUBMISSION: 'badge-resubmission', resubmission: 'badge-resubmission'
         };
 
         content.innerHTML = `
           <div>
-            <p><strong>Status:</strong> 
+            <p><strong>Status:</strong>
               <span class="badge ${badgeClass[app.status] || 'badge-pending'}">
                 ${statusMap[app.status] || app.status}
               </span>
             </p>
-            <p><strong>Account Type:</strong> ${app.accountType}</p>
-            ${app.rejectionReason ? `<p><strong>Note:</strong> ${app.rejectionReason}</p>` : ''}
-            ${app.remarks ? `<p><strong>Remarks:</strong> ${app.remarks}</p>` : ''}
+            <p><strong>Account Type:</strong> ${app.accountType || 'N/A'}</p>
           </div>
         `;
       } catch (error) {
-        if (error.message.includes('Session expired')) {
-          // Will redirect to login
-        } else {
-          content.innerHTML = `<p class="text-danger">Error loading status: ${error.message}</p>`;
-        }
+        console.error('Status load error:', error);
+        content.innerHTML = `<p class="text-muted">You haven't started an application yet.</p>
+          <a href="./apply-step1.html" class="btn btn-gold" style="margin-top:10px;">
+            Start Your Application
+          </a>`;
       }
-    }
+    });
 
     function logout() {
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('role');
       sessionStorage.removeItem('user');
-      window.location.href = '../../loginPage.html';
+      window.location.href = '../auth/loginPage.html';
     }
   </script>
 </body>

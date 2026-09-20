@@ -1,4 +1,4 @@
-import { IsEnum } from 'class-validator';
+import { IsEnum, IsString, IsOptional, IsNotEmpty } from 'class-validator';
 import { AccountType } from '../entities/account-type.enum';
 
 export class CreateApplicationDto {
@@ -6,4 +6,28 @@ export class CreateApplicationDto {
     message: 'Please select a valid account type.',
   })
   accountType!: AccountType;
+
+  @IsString()
+  @IsNotEmpty()
+  address!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  occupation!: string;
+
+  @IsString()
+  @IsOptional()
+  incomeRange?: string;
+
+  @IsString()
+  @IsOptional()
+  nextOfKin?: string;
+
+  @IsString()
+  @IsOptional()
+  nextOfKinPhone?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  nationalId!: string;
 }

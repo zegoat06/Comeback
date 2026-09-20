@@ -6,54 +6,56 @@ const rememberMe = document.getElementById("rememberMe");
 
 // Check if a saved email exists
 window.onload = function () {
-
-    const savedEmail = localStorage.getItem("savedEmail");
-
-    if (savedEmail) {
-        email.value = savedEmail;
-        rememberMe.checked = true;
-    }
+  const savedEmail = localStorage.getItem("savedEmail");
+  if (savedEmail) {
+    email.value = savedEmail;
+    rememberMe.checked = true;
+  }
 };
 
-
 // When the form is submitted
-loginForm.addEventListener("submit", function (event) {
+loginForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
 
-    // Prevent page refresh
-    event.preventDefault();
+  const userEmail = email.value.trim();
+  const userPassword = password.value.trim();
 
-    // Remove spaces
-    const userEmail = email.value.trim();
-    const userPassword = password.value.trim();
+  // Validation
+  if (userEmail === "" || userPassword === "") {
+    alert("Please fill in all fields.");
+    return;
+  }
 
-    // Validation
-    if (userEmail === "" || userPassword === "") {
-        alert("Please fill in all fields.");
-        return;
-    }
+  try {
+    // Call backend API
+    const response = await api.login({
+      email: userEmail,
+      password: userPassword,
+    });
 
-    /*Example login credentials
-    const correctEmail = "admin@gmail.com";
-    const correctPassword = "12345"; */
-
-    if (userEmail === correctEmail && userPassword === correctPassword) {
-
-        // Save email if checkbox is checked
-        if (rememberMe.checked) {
-            localStorage.setItem("savedEmail", userEmail);
-        } else {
-            localStorage.removeItem("savedEmail");
-        }
-
-        alert("Login Successful!");
-
-        // Redirect to another page
-        window.location.href = "dashboard.html";
-
+    // Save email if "Save" is checked
+    if (rememberMe.checked) {
+      localStorage.setItem("savedEmail", userEmail);
     } else {
-
-        alert("Incorrect email or password.");
-
+      localStorage.removeItem("savedEmail");
     }
 
+    // Save user info to sessionStorage
+    sessionStorage.setItem("token", response.token);
+    sessionStorage.setItem("user", JSON.stringify(response.user));
+    sessionStorage.setItem("role", response.user.role || "customer");
+
+    alert("Login Successful!");
+
+    // Redirect based on role
+    if (response.user.role === "admin") {
+      window.location.href = "../admin/dashboard.html";
+    } else {
+      window.location.href = "../customer/dashboard.html";
+    }
+
+  } catch (error) {
+    console.error("Login error:", error);
+    alert("Login failed: " + error.message);
+  }
 });

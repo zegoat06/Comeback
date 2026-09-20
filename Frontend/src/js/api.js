@@ -2,23 +2,17 @@
    SWIFTb - API Integration
    ======================================== */
 
-// Load configuration
-if (!window.CONFIG) {
-  // Fallback config if config.js not loaded
-  window.CONFIG = {
-    API_BASE: window.location.hostname !== 'localhost' 
-      ? 'https://swiftb-backend.onrender.com/api'
-      : 'http://localhost:3000/api',
-    FRONTEND_URL: window.location.origin,
-    isProduction: window.location.hostname !== 'localhost'
-  };
-}
+// Simple API base — auto-detect environment
+const SWIFTB_API_BASE =
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
+    : 'https://swiftb-backend.onrender.com/api';
 
-const API_BASE = window.CONFIG.API_BASE;
+console.log('API BASE URL:', SWIFTB_API_BASE);
 
 class ApiClient {
   constructor() {
-    this.baseURL = API_BASE;
+    this.baseURL = SWIFTB_API_BASE;
   }
 
   getToken() {
@@ -40,21 +34,24 @@ class ApiClient {
       delete headers['Content-Type'];
     }
 
+    const fullUrl = `${this.baseURL}${endpoint}`;
+    console.log('API CALL:', fullUrl);
+
     try {
-      const response = await fetch(`${this.baseURL}${endpoint}`, {
+      const response = await fetch(fullUrl, {
         ...options,
         headers,
       });
 
       if (response.status === 401) {
-        sessionStorage.removeItem('token');
-        sessionStorage.removeItem('role');
-        sessionStorage.removeItem('user');
-        if (!window.location.pathname.includes('loginPage') && 
-            !window.location.pathname.includes('registerPage')) {
-          window.location.href = '/loginPage.html';
-        }
-        throw new Error('Session expired. Please login again.');
+        if (
+          !window.location.pathname.includes('loginPage') &&
+          !window.location.pathname.includes('registerPage')
+        ) {
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('role');
+          sessionStorage.removeItem('user');
+          window.location.href = '../auth/loginPage.html';        }
       }
 
       const data = await response.json();
@@ -71,9 +68,8 @@ class ApiClient {
   }
 
   // ========================================
-  // AUTH ENDPOINTS
+  // AUTH
   // ========================================
-
   async register(userData) {
     return this.request('/auth/register', {
       method: 'POST',
@@ -97,9 +93,8 @@ class ApiClient {
   }
 
   // ========================================
-  // CUSTOMER ENDPOINTS
+  // CUSTOMER
   // ========================================
-
   async getProfile() {
     return this.request('/customers/profile');
   }
@@ -111,10 +106,6 @@ class ApiClient {
     });
   }
 
-  // ========================================
-  // APPLICATION ENDPOINTS
-  // ========================================
-
   async createApplication(data) {
     return this.request('/applications', {
       method: 'POST',
@@ -125,14 +116,6 @@ class ApiClient {
   async getMyApplications() {
     return this.request('/applications/my');
   }
-
-  async getApplicationById(id) {
-    return this.request(`/applications/${id}`);
-  }
-
-  // ========================================
-  // DOCUMENT ENDPOINTS
-  // ========================================
 
   async uploadDocument(formData) {
     return this.request('/documents/upload', {
@@ -146,13 +129,70 @@ class ApiClient {
   }
 
   // ========================================
-  // ACCOUNT TYPE ENDPOINTS
+  // ACCOUNT TYPES (public / shared)
   // ========================================
-
   async getAccountTypes() {
     return this.request('/account-types');
+  }
+
+  // ========================================
+  // ADMIN — APPLICATIONS
+  // ========================================
+  async getAllApplications() {
+    return this.request('/applications');
+  }
+
+  async getApplicationById(id) {
+    return this.request(`/applications/${id}`);
+  }
+
+  async approveApplication(id) {
+    return this.request(`/applications/${id}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  }
+
+  async rejectApplication(id, rejectionReason) {
+    return this.request(`/applications/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ rejectionReason }),
+    });
+  }
+
+  async requestResubmission(id, remarks) {
+    return this.request(`/applications/${id}/resubmission`, {
+      method: 'POST',
+      body: JSON.stringify({ remarks }),
+    });
+  }
+
+  // ========================================
+  // ADMIN — USERS
+  // ========================================
+  async getAllUsers() {
+    return this.request('/users');
+  }
+
+  async getUserById(id) {
+    return this.request(`/users/${id}`);
+  }
+
+  async updateUser(id, data) {
+    return this.request(`/users/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteUser(id) {
+    return this.request(`/users/${id}`, {
+      method: 'DELETE',
+    });
   }
 }
 
 const api = new ApiClient();
 window.api = api;
+
+console.log('API client ready. baseURL =', api.baseURL);
